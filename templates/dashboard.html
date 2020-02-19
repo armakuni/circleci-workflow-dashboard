@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head rel="v2">
+    <title>CircleCI Summary</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <script>window.refresh_interval = {{ refreshInterval }}</script>
+    <script src="/favico-0.3.10.min.js"></script>
+    <script src="/refresh.js"></script>
+  </head>
+  <body>
+    <div class="time">
+      {{ now }} (<span id="countdown">{{ refreshInterval }}</span>)
+      <div class="right">
+        <a class="github" href="https://github.com/armakuni" target="_blank">&nbsp;</a>
+      </div>
+    </div>
+    <div class="scalable">
+    {% for project in projects %}
+      <a href="{{ project['link'] }}" target="_blank" class="outer">
+        <div class="status {{ project['status'] }}"></div>
+        <div class="inner">
+          <span class="{{ project['name'] }}"><span>{{ project['name'] }}</span></span>
+          <span class="{{ project['workflow'] }}"><span>{{ project['workflow'] }}</span></span>
+          <span class="{{ project['branch'] }}"><span>{{ project['branch'] }}</span></span>
+        </div>
+      </a>
+    {% endfor %}
+    </div>
+  </body>
+</html>

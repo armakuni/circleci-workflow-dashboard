@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  line-height: 1.6em;
+  text-align: center;
+  background: #161616;
+  color: #000;
+}
+
+a {
+  color: #F7F7F7;
+}
+
+.time {
+  line-height: 32px;
+  background: #F7F7F7;
+  color: #161616;
+  white-space: nowrap;
+}
+
+.time .right {
+  position: absolute;
+  top: 0;
+  ;
+  right: 0;
+  height: 32px;
+  background: #F7F7F7;
+}
+
+.time a {
+  text-decoration: none;
+}
+
+.time .github {
+  width: 32px;
+  height: 32px;
+  background: url(/github.png);
+  display: inline-block;
+  background-size: contain;
+}
+
+.scalable {
+  position: absolute;
+  top: 32px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+}
+
+.group>a {
+  display: block;
+  text-decoration: none;
+}
+
+.group>div {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+}
+
+.outer {
+  display: block;
+  width: 300px;
+  height: 200px;
+  color: white;
+  background: #7F7F7F;
+  position: relative;
+  margin: 4px;
+}
+
+.status {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: left;
+  display: inline-block;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.inner {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.running .inner {
+  height: 100%;
+}
+
+@-webkit-keyframes pulseBorder {
+  from {
+    outline-offset: 0;
+  }
+
+  to {
+    outline-offset: 7px;
+  }
+}
+
+.paused_job {
+  background: #3498DB;
+}
+
+.errored {
+  background: #E3B80D;
+}
+
+.failed {
+  background: #F24646;
+}
+
+.success {
+  background: #059B4A;
+}
+
+.unknown {
+  background: #7F7F7F;
+}
+
+/* Animated borders for activity */
+.running,
+.onhold {
+  animation-name: pulseBorder;
+  -webkit-animation-name: pulseBorder;
+  animation-iteration-count: infinite;
+  -webkit-animation-iteration-count: infinite;
+  animation-timing-function: ease;
+  -webkit-animation-timing-function: ease;
+  animation-direction: alternate;
+  -webkit-animation-direction: alternate;
+  animation-duration: 0.5s;
+  -webkit-animation-duration: 0.5s;
+  outline-offset: 0;
+}
+
+.running {
+  outline: solid 7px #3495DC;
+}
+
+.onhold {
+  outline: solid 7px purple;
+}
+
+.cancelled {
+  outline: solid 7px #555555;
+}
