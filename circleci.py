@@ -20,8 +20,7 @@ COMPLETED_STATUSES = [
     STATUS_UNKNOWN,
 ]
 
-api_token = os.environ['CIRCLECI_TOKEN']
-api_response = {}
+API_TOKEN = os.environ['CIRCLECI_TOKEN']
 
 
 # Generic calls to each of the APIs (v1.1, v2)
@@ -29,7 +28,7 @@ api_response = {}
 # Output: Array{}
 def call_api_v1(api_target):
     response = requests.get(
-        f"https://circleci.com/api/v1.1/{api_target}", auth=(api_token, "")
+        f"https://circleci.com/api/v1.1/{api_target}", auth=(API_TOKEN, "")
     )
     return response.json()
 
@@ -41,14 +40,14 @@ def call_api_v1(api_target):
 def call_api_v2(api_target, handle_pagination):
     api_url = f"https://circleci.com/api/v2/{api_target}"
     if not handle_pagination:
-        response = requests.get(api_url, auth=(api_token, ""))
+        response = requests.get(api_url, auth=(API_TOKEN, ""))
         return response.json()
     else:
         all_results = []
         next_page = ""
         while next_page is not None:
             response = requests.get(
-                f"{api_url}?page-token={next_page}", auth=(api_token, "")
+                f"{api_url}?page-token={next_page}", auth=(API_TOKEN, "")
             )
             response_data = response.json()
             all_results.extend(response_data["items"])
