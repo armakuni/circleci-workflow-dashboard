@@ -1,3 +1,6 @@
 requirements.txt
 *.json
 __pycache__
+
+.idea/
+venv/
