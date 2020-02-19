@@ -54,17 +54,6 @@ a {
   justify-content: space-around;
 }
 
-.group>a {
-  display: block;
-  text-decoration: none;
-}
-
-.group>div {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-around;
-}
-
 .outer {
   display: block;
   width: 300px;
@@ -115,7 +104,7 @@ a {
   }
 
   to {
-    outline-offset: 7px;
+    outline-offset: 4px;
   }
 }
 
@@ -141,7 +130,7 @@ a {
 
 /* Animated borders for activity */
 .running,
-.onhold {
+.on_hold {
   animation-name: pulseBorder;
   -webkit-animation-name: pulseBorder;
   animation-iteration-count: infinite;
@@ -159,10 +148,10 @@ a {
   outline: solid 7px #3495DC;
 }
 
-.onhold {
-  outline: solid 7px purple;
+.on_hold {
+  outline: solid 7px #A692EC;
 }
 
-.cancelled {
+.canceled {
   outline: solid 7px #555555;
 }
