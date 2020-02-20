@@ -389,3 +389,96 @@ def presorted_dashboard_data():
             "link": "https://foobar.com",
         },
     ]
+
+
+@fixture
+def dashboard_projects():
+    return [
+        {"reponame": "hello-world", "username": "foobar", "vcs_type": "github"},
+        {"reponame": "example", "username": "foobar", "vcs_type": "github"},
+        {"reponame": "example", "username": "foobar", "vcs_type": "github"},
+    ]
+
+
+@fixture
+def dashboard_pipelines_hello_world():
+    return [
+        {"id": "4", "vcs": {"branch": "master"}},
+        {"id": "3", "vcs": {"branch": "master"}},
+        {"id": "2", "vcs": {"branch": "dev"}},
+        {"id": "1", "vcs": {"branch": "master"}},
+    ]
+
+
+@fixture
+def dashboard_pipelines_example():
+    return [
+        {"id": "6", "vcs": {"branch": "master"}},
+        {"id": "5", "vcs": {"branch": "dev"}},
+    ]
+
+
+@fixture
+def dashboard_workflows_4():
+    return [
+        {
+            "name": "deploy",
+            "status": "canceled",
+            "id": "workflow_4",
+            "pipeline_id": "4",
+        },
+        {"name": "deploy", "status": "success", "id": "workflow_3", "pipeline_id": "4"},
+    ]
+
+
+@fixture
+def dashboard_workflows_3():
+    return [
+        {"name": "deploy", "status": "failed", "id": "workflow_33", "pipeline_id": "3"},
+        {"name": "deploy", "status": "failed", "id": "workflow_32", "pipeline_id": "3"},
+    ]
+
+
+@fixture
+def dashboard_workflows_6():
+    return [
+        {"name": "test", "status": "success", "id": "workflow_6", "pipeline_id": "6"}
+    ]
+
+
+@fixture
+def dashboard_workflows_5():
+    return [
+        {"name": "test", "status": "success", "id": "workflow_6", "pipeline_id": "5"}
+    ]
+
+
+@fixture
+def dashboard_pipeline_side_effect(
+    dashboard_pipelines_hello_world, dashboard_pipelines_example
+):
+    def impl(project_slug):
+        if project_slug == "github/foobar/hello-world":
+            return dashboard_pipelines_hello_world
+        return dashboard_pipelines_example
+
+    return impl
+
+
+@fixture
+def dashboard_workflow_side_effect(
+    dashboard_workflows_6,
+    dashboard_workflows_5,
+    dashboard_workflows_4,
+    dashboard_workflows_3,
+):
+    def impl(pipeline_id):
+        switcher = {
+            "6": dashboard_workflows_6,
+            "5": dashboard_workflows_5,
+            "4": dashboard_workflows_4,
+            "3": dashboard_workflows_3,
+        }
+        return switcher.get(pipeline_id, dashboard_workflows_3)
+
+    return impl

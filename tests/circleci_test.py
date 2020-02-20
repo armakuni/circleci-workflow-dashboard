@@ -163,3 +163,55 @@ def test_sort_dashboard_data(dashboard_data, presorted_dashboard_data):
     sorted_dashboard_data = circleci.sort_dashboard_data(dashboard_data)
     assert len(sorted_dashboard_data) == len(dashboard_data)
     assert sorted_dashboard_data == presorted_dashboard_data
+
+
+def test_get_dashboard_data(
+    mocker,
+    circleci_client,
+    dashboard_projects,
+    dashboard_pipeline_side_effect,
+    dashboard_workflow_side_effect,
+):
+    mocker.patch.object(
+        circleci_client, "get_all_projects", return_value=dashboard_projects
+    )
+    mocker.patch.object(
+        circleci_client, "get_all_pipelines", side_effect=dashboard_pipeline_side_effect
+    )
+    mocker.patch.object(
+        circleci_client,
+        "get_workflows_for_pipeline",
+        side_effect=dashboard_workflow_side_effect,
+    )
+    dashboard_data = circleci.get_dashboard_data(circleci_client)
+    assert len(dashboard_data) == 4
+    assert dashboard_data == [
+        {
+            "branch": "dev",
+            "link": "https://app.circleci.com/github/foobar/example/pipelines/5/workflows/workflow_6",
+            "name": "foobar/example",
+            "status": "success",
+            "workflow": "test",
+        },
+        {
+            "branch": "master",
+            "link": "https://app.circleci.com/github/foobar/example/pipelines/6/workflows/workflow_6",
+            "name": "foobar/example",
+            "status": "success",
+            "workflow": "test",
+        },
+        {
+            "branch": "dev",
+            "link": "https://app.circleci.com/github/foobar/hello-world/pipelines/2/workflows/workflow_33",
+            "name": "foobar/hello-world",
+            "status": "failed",
+            "workflow": "deploy",
+        },
+        {
+            "branch": "master",
+            "link": "https://app.circleci.com/github/foobar/hello-world/pipelines/4/workflows/workflow_4",
+            "name": "foobar/hello-world",
+            "status": "canceled success",
+            "workflow": "deploy",
+        },
+    ]
