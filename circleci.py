@@ -28,15 +28,15 @@ class CircleCI:
         job_url="https://app.circleci.com",
     ):
         self.api_token = api_token
-        self.api__url = api_url
+        self.api_url = api_url
         self.job_url = job_url
 
     # Generic calls to each of the APIs (v1.1, v2)
     # Input: string
     # Output: Array{}
-    def call_api_v1(self, api_target):
+    def __call_api_v1(self, api_target):
         response = requests.get(
-            f"{self.api__url}/api/v1.1/{api_target}", auth=(self.api_token, "")
+            f"{self.api_url}/api/v1.1/{api_target}", auth=(self.api_token, "")
         )
         return response.json()
 
@@ -44,58 +44,43 @@ class CircleCI:
     # Take the stress of following the tokens out of the business logic
     # Input: string, boolean
     # Output: Array{}
-    def call_api_v2(self, api_target, handle_pagination):
-        api_url = f"{self.api__url}/api/v2/{api_target}"
-        if not handle_pagination:
-            response = requests.get(api_url, auth=(self.api_token, ""))
-            return response.json()
-        else:
-            all_results = []
-            next_page = ""
-            while next_page is not None:
-                response = requests.get(
-                    f"{api_url}?page-token={next_page}", auth=(self.api_token, "")
-                )
-                response_data = response.json()
-                all_results.extend(response_data["items"])
-                next_page = response_data["next_page_token"]
-            return all_results
+    def __call_api_v2(self, api_target):
+        api_url = f"{self.api_url}/api/v2/{api_target}"
+        all_results = []
+        next_page = ""
+        while next_page is not None:
+
+            response = requests.get(
+                f"{api_url}?page-token={next_page}", auth=(self.api_token, "")
+            )
+            response_data = response.json()
+            all_results.extend(response_data["items"])
+            next_page = response_data["next_page_token"]
+        return all_results
 
     # Get all the projects for the authenticated user (API_TOKEN)
     # Input: None
     # Output: Array{}
     def get_all_projects(self):
-        return self.call_api_v1("projects")
+        return self.__call_api_v1("projects")
 
     # Get all the Pipelines under a given project_slug
     # Input: string
     # Output: Array{}
     def get_all_pipelines(self, project_slug):
-        return self.call_api_v2(f"project/{project_slug}/pipeline", True)
+        return self.__call_api_v2(f"project/{project_slug}/pipeline")
 
     # Get all the Workflows used by a Pipeline
     # Input: string
     # Output: Array{}
     def get_workflows_for_pipeline(self, pipeline_id):
-        return self.call_api_v2(f"pipeline/{pipeline_id}/workflow", True)
+        return self.__call_api_v2(f"pipeline/{pipeline_id}/workflow")
 
     # Get all the Jobs run by a Workflow
     # Input: string
     # Output: Array{}
     def get_jobs_for_workflow(self, workflow_id):
-        return self.call_api_v2(f"workflow/{workflow_id}/job", True)
-
-    # Generate a URI to the targeted Pipeline run
-    # Input: string, string, string
-    # Output: string
-    def workflow_link(self, project_slug, pipeline_id, workflow_id):
-        return f"{self.job_url}/{project_slug}/pipelines/{pipeline_id}/workflows/{workflow_id}"
-
-    # Generate a URI to the targeted Job
-    # Input: string, string
-    # Output: string
-    def job_link(self, project_slug, job_id):
-        return f"{self.job_url}/jobs/{project_slug}/{job_id}"
+        return self.__call_api_v2(f"workflow/{workflow_id}/job")
 
     # Iterate through previous Pipeline runs to find the last completed run for a Workflow
     # Input: string, string
@@ -112,6 +97,21 @@ class CircleCI:
             if not workflow_in_pipeline:
                 return status
         return status
+
+    # Generate a URI to the targeted Pipeline run
+    # Input: string, string, string
+    # Output: string
+    def workflow_link(self, project_slug, pipeline_id, workflow_id):
+        return f"{self.job_url}/{project_slug}/pipelines/{pipeline_id}/workflows/{workflow_id}"
+
+    # Generate a URI to the targeted Job
+    # Input: string, string
+    # Output: string
+    def job_link(self, project_slug, job_id):
+        return f"{self.job_url}/jobs/{project_slug}/{job_id}"
+
+    def generate_project_slug(self, project):
+        return f"{project['vcs_type']}/{project['username']}/{project['reponame']}"
 
 
 # Get a dictionary of branches with the associated Pipeline objects
@@ -146,9 +146,7 @@ def get_dashboard_data(circleci_client):
     # Iterate all projects followed in CircleCI
     for project in circleci_client.get_all_projects():
         # Generate the 'project_slug' for each one in the format :vcs_type/:vcs_username/:vcs_project_name
-        project_slug = (
-            f"{project['vcs_type']}/{project['username']}/{project['reponame']}"
-        )
+        project_slug = circleci_client.generate_project_slug(project)
         # Get the pipelines (runs) associated with the project
         pipelines = circleci_client.get_all_pipelines(project_slug)
         # Filter the pipelines down into the VCS branches they ran for
@@ -180,4 +178,10 @@ def get_dashboard_data(circleci_client):
                 )
                 # Append the compound key to show we've processed this project/branch/workflow
                 compound_keys.append(compound_key)
-    return dashboard_data
+    return sort_dashboard_data(dashboard_data)
+
+
+def sort_dashboard_data(dashboard_data):
+    return sorted(
+        dashboard_data, key=lambda i: f"{i['name']}-{i['workflow']}-{i['branch']}"
+    )

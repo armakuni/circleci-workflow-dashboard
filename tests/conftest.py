@@ -1,0 +1,304 @@
+from pytest import fixture
+from circleci import CircleCI
+
+
+@fixture
+def circleci_client():
+    return CircleCI("foo")
+
+
+@fixture
+def project():
+    return {
+        "irc_server": None,
+        "ssh_keys": [],
+        "branches": {
+            "master": {
+                "latest_workflows": {
+                    "test": {
+                        "status": "success",
+                        "created_at": "2020-02-19T10: 49: 27.966Z",
+                        "id": "1b1e7a9f-eaca-4a37-8366-4d6db2a48a93",
+                    }
+                },
+                "pusher_logins": ["foobar"],
+                "running_builds": [],
+                "recent_builds": [
+                    {
+                        "outcome": "success",
+                        "status": "success",
+                        "build_num": 1,
+                        "vcs_revision": "b02ff726d3c43552ee3ae1f62e000b86da7e99fa",
+                        "pushed_at": "2020-02-19T10: 49: 27.000Z",
+                        "is_workflow_job": True,
+                        "is_2_0_job": True,
+                        "added_at": "2020-02-19T10: 52: 44.156Z",
+                    }
+                ],
+            },
+            "last_success": {
+                "outcome": "success",
+                "status": "success",
+                "build_num": 1,
+                "vcs_revision": "b02ff726d3c43552ee3ae1f62e000b86da7e99fa",
+                "pushed_at": "2020-02-19T10: 49: 27.000Z",
+                "is_workflow_job": True,
+                "is_2_0_job": True,
+                "added_at": "2020-02-19T10: 52: 44.156Z",
+            },
+            "is_using_workflows": True,
+        },
+        "irc_keyword": None,
+        "oss": False,
+        "slack_channel": None,
+        "reponame": "hello-world",
+        "dependencies": "",
+        "aws": {"keypair": None},
+        "slack_webhook_url": None,
+        "irc_channel": None,
+        "parallel": 1,
+        "slack_integration_access_token": None,
+        "username": "foobar",
+        "slack_integration_team": None,
+        "slack_integration_channel": None,
+        "heroku_deploy_user": None,
+        "irc_username": None,
+        "slack_notify_prefs": None,
+        "slack_subdomain": None,
+        "has_usable_key": True,
+        "setup": "",
+        "vcs_type": "github",
+        "feature_flags": {
+            "trusty-beta": False,
+            "builds-service": True,
+            "osx": False,
+            "set-github-status": True,
+            "build-prs-only": False,
+            "forks-receive-secret-env-vars": True,
+            "fleet": None,
+            "build-fork-prs": False,
+            "autocancel-builds": False,
+        },
+        "irc_password": None,
+        "compile": "",
+        "slack_integration_notify_prefs": None,
+        "slack_integration_webhook_url": None,
+        "irc_notify_prefs": None,
+        "slack_integration_team_id": None,
+        "extra": "",
+        "jira": None,
+        "slack_integration_channel_id": None,
+        "language": "Go",
+        "flowdock_api_token": None,
+        "slack_channel_override": None,
+        "vcs_url": "https://github.com/foobar/hello-world",
+        "following": True,
+        "default_branch": "master",
+        "slack_api_token": None,
+        "test": "",
+    }
+
+
+@fixture
+def projects(project):
+    return [project]
+
+
+@fixture
+def project_slug(circleci_client, project):
+    return circleci_client.generate_project_slug(project)
+
+
+@fixture
+def pipeline_id():
+    return "b8a20fa9-1e61-4bcf-9353-de9a812377e6"
+
+
+@fixture
+def pipeline(pipeline_id):
+    return {
+        "id": pipeline_id,
+        "errors": [],
+        "project_slug": "gh/foobar/hello-world",
+        "updated_at": "2020-02-19T10:19:23.471Z",
+        "number": 18,
+        "state": "created",
+        "created_at": "2020-02-19T10:19:23.471Z",
+        "trigger": {
+            "received_at": "2020-02-19T10:19:23.436Z",
+            "type": "webhook",
+            "actor": {
+                "login": "foobar",
+                "avatar_url": "https://foobar.com/u/123456?v=4",
+            },
+        },
+        "vcs": {
+            "origin_repository_url": "https://github.com/foobar/hello-world",
+            "target_repository_url": "https://github.com/foobar/hello-world",
+            "revision": "5db088471dd324e94cf6f7af8084d2ebd7109f69",
+            "provider_name": "GitHub",
+            "branch": "master",
+        },
+    }
+
+
+@fixture
+def pipeline_broken():
+    return {
+        "id": "54f18b24-866d-4798-8d86-451dfbb95a35",
+        "errors": [
+            {"type": "config", "message": "|   |     null"},
+            {"type": "config", "message": "|   |   INPUT:"},
+            {"type": "config", "message": "|   |     type: object"},
+            {"type": "config", "message": "|   |   SCHEMA:"},
+            {
+                "type": "config",
+                "message": "|   2. [#/jobs/lint/steps/1] expected type: Mapping, found: String",
+            },
+            {"type": "config", "message": "|   |     - add_ssh_keys"},
+            {"type": "config", "message": "|   |     - setup_remote_docker"},
+            {"type": "config", "message": "|   |     - checkout"},
+            {"type": "config", "message": "|   |     enum:"},
+            {
+                "type": "config",
+                "message": "|   |   Steps without arguments can be called as strings",
+            },
+            {
+                "type": "config",
+                "message": "|   1. [#/jobs/lint/steps/1] Input not a valid enum value",
+            },
+            {
+                "type": "config",
+                "message": "1. [#/jobs/lint/steps/1] 0 subschemas matched instead of one",
+            },
+            {
+                "type": "config",
+                "message": "[#/jobs/lint] only 1 subschema matches out of 2",
+            },
+            {"type": "config", "message": "ERROR IN CONFIG FILE:"},
+        ],
+        "project_slug": "gh/foobar/hello-world",
+        "updated_at": "2020-02-18T14:48:47.776Z",
+        "number": 13,
+        "state": "errored",
+        "created_at": "2020-02-18T14:48:47.776Z",
+        "trigger": {
+            "received_at": "2020-02-18T14:48:47.742Z",
+            "type": "webhook",
+            "actor": {
+                "login": "foobar",
+                "avatar_url": "https://foobar.com/u/123456?v=4",
+            },
+        },
+        "vcs": {
+            "origin_repository_url": "https://github.com/foobar/hello-world",
+            "target_repository_url": "https://github.com/foobar/hello-world",
+            "revision": "208f4fa5c3d5a624621ce743066d1fa9f7861157",
+            "provider_name": "GitHub",
+            "commit": {"body": "", "subject": "Update config.yml"},
+            "branch": "master",
+        },
+    }
+
+
+@fixture
+def pipeline_page_2(pipeline, pipeline_broken):
+    return {"next_page_token": None, "items": [pipeline, pipeline_broken]}
+
+
+@fixture
+def pipeline_page_1(pipeline, pipeline_broken):
+    return {"next_page_token": "page-2", "items": [pipeline, pipeline_broken]}
+
+
+@fixture
+def workflow_id():
+    return "7d1c893f-982f-45a3-9aec-627345cece6d"
+
+
+@fixture
+def workflow_name():
+    return "deploy"
+
+
+@fixture
+def workflow(workflow_id, workflow_name):
+    return {
+        "stopped_at": "2020-02-19T16:31:51Z",
+        "name": workflow_name,
+        "project_slug": "gh/foobar/hello-world",
+        "pipeline_number": 28,
+        "status": "canceled",
+        "id": "7d1c893f-982f-45a3-9aec-627345cece6d",
+        "created_at": "2020-02-19T16:29:52Z",
+        "pipeline_id": "666942a9-41d2-4239-8fc3-babd6e0e4cd0",
+    }
+
+
+@fixture
+def workflow2(workflow_name):
+    return {
+        "stopped_at": "2020-02-19T15:52:04Z",
+        "name": workflow_name,
+        "project_slug": "gh/foobar/hello-world",
+        "pipeline_number": 28,
+        "status": "success",
+        "id": "fc17ac52-9558-4aad-8d98-1234c48f5055",
+        "created_at": "2020-02-19T15:48:49Z",
+        "pipeline_id": "666942a9-41d2-4239-8fc3-babd6e0e4cd0",
+    }
+
+
+@fixture
+def workflows_page_1(workflow, workflow2):
+    return {"next_page_token": None, "items": [workflow, workflow2]}
+
+
+@fixture
+def workflows_unknown(workflow):
+    return {"next_page_token": None, "items": [workflow]}
+
+
+@fixture
+def job_id():
+    return "a60fb799-b010-4fec-a899-6325de9d21b3"
+
+
+@fixture
+def job():
+    return {
+        "dependencies": [],
+        "job_number": 111,
+        "id": "a60fb799-b010-4fec-a899-6325de9d21b3",
+        "started_at": "2020-02-19T16:30:02Z",
+        "name": "test",
+        "project_slug": "gh/foobar/hello-world",
+        "status": "success",
+        "type": "build",
+        "stopped_at": "2020-02-19T16:30:36Z",
+    }
+
+
+@fixture
+def job2():
+    return {
+        "dependencies": ["a60fb799-b010-4fec-a899-6325de9d21b3"],
+        "job_number": 112,
+        "id": "c819c8ab-a43c-43da-ae9c-74266ad74ba1",
+        "started_at": "2020-02-19T16:30:41Z",
+        "name": "build",
+        "project_slug": "gh/foobar/hello-world",
+        "status": "success",
+        "type": "build",
+        "stopped_at": "2020-02-19T16:31:20Z",
+    }
+
+
+@fixture
+def jobs_page_1(job, job2):
+    return {"next_page_token": None, "items": [job, job2]}
+
+
+@fixture
+def filtered_pipelines(pipeline):
+    return {"master": [pipeline]}

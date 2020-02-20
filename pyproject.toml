@@ -10,6 +10,8 @@ requests = "^2.22.0"
 flask = "^1.1.1"
 
 [tool.poetry.dev-dependencies]
+requests-mock = "^1.7.0"
+pytest = "^5.3.5"
 
 [build-system]
 requires = ["poetry>=0.12"]
