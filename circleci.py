@@ -111,7 +111,16 @@ class CircleCI:
         return f"{self.job_url}/jobs/{project_slug}/{job_id}"
 
     def generate_project_slug(self, project):
+        # Generate the 'project_slug' for each one in the format :vcs_type/:vcs_username/:vcs_project_name
         return f"{project['vcs_type']}/{project['username']}/{project['reponame']}"
+
+    def workflow_status(self, workflow, branch_pipelines):
+        # For "running state" (states with animated borders), we need to append the correct secondary state
+        # e.g "success running" will be green with a blue animated border
+        status = workflow["status"]
+        if workflow["status"] not in COMPLETED_STATUSES:
+            status += f" {self.get_previous_completed_status(branch_pipelines, workflow['name'])}"
+        return status
 
 
 # Get a dictionary of branches with the associated Pipeline objects
@@ -140,12 +149,21 @@ def get_latest_pipeline_per_branch(pipelines):
     return latest_pipeline_ids
 
 
+def create_dashboard_monitor(project, workflow, branch, status, link):
+    return {
+        "name": f"{project['username']}/{project['reponame']}",
+        "workflow": workflow["name"],
+        "branch": branch,
+        "status": status,
+        "link": link,
+    }
+
+
 def get_dashboard_data(circleci_client):
     compound_keys = []
     dashboard_data = []
     # Iterate all projects followed in CircleCI
     for project in circleci_client.get_all_projects():
-        # Generate the 'project_slug' for each one in the format :vcs_type/:vcs_username/:vcs_project_name
         project_slug = circleci_client.generate_project_slug(project)
         # Get the pipelines (runs) associated with the project
         pipelines = circleci_client.get_all_pipelines(project_slug)
@@ -156,25 +174,18 @@ def get_dashboard_data(circleci_client):
             # Iterate over a list of the workflows used by the lastest pipeline run (normally only one)
             for workflow in circleci_client.get_workflows_for_pipeline(pipeline_id):
                 # Generate a compound key to identify the pipeline uniquely
-                compound_key = f"{project['reponame']}{workflow['name']}-{branch}"
+                compound_key = f"{project['username']}/{project['reponame']}{workflow['name']}-{branch}"
                 # Check to see if that key already exists, if it does - ignore this workflow / pipeline run
                 if compound_key in compound_keys:
                     continue
-                # For "running state" (states with animated borders), we need to append the correct secondary state
-                status = workflow["status"]
-                if workflow["status"] not in COMPLETED_STATUSES:
-                    status += f" {circleci_client.get_previous_completed_status(filtered_pipelines[branch], workflow['name'])}"
-                # Finally, put all this working out together, append that to the returned data, and start all over again
+                status = circleci_client.workflow_status(
+                    workflow, filtered_pipelines[branch]
+                )
+                link = circleci_client.workflow_link(
+                    project_slug, pipeline_id, workflow["id"]
+                )
                 dashboard_data.append(
-                    {
-                        "name": project["reponame"],
-                        "workflow": workflow["name"],
-                        "branch": branch,
-                        "status": status,
-                        "link": circleci_client.workflow_link(
-                            project_slug, pipeline_id, workflow["id"]
-                        ),
-                    }
+                    create_dashboard_monitor(project, workflow, branch, status, link)
                 )
                 # Append the compound key to show we've processed this project/branch/workflow
                 compound_keys.append(compound_key)

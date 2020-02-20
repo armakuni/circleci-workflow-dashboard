@@ -202,13 +202,18 @@ def pipeline_broken():
 
 
 @fixture
-def pipeline_page_2(pipeline, pipeline_broken):
-    return {"next_page_token": None, "items": [pipeline, pipeline_broken]}
+def pipelines(pipeline, pipeline_broken):
+    return [pipeline, pipeline_broken]
 
 
 @fixture
-def pipeline_page_1(pipeline, pipeline_broken):
-    return {"next_page_token": "page-2", "items": [pipeline, pipeline_broken]}
+def pipeline_page_2(pipelines):
+    return {"next_page_token": None, "items": pipelines}
+
+
+@fixture
+def pipeline_page_1(pipelines):
+    return {"next_page_token": "page-2", "items": pipelines}
 
 
 @fixture
@@ -302,3 +307,85 @@ def jobs_page_1(job, job2):
 @fixture
 def filtered_pipelines(pipeline):
     return {"master": [pipeline]}
+
+
+@fixture
+def dashboard_data():
+    return [
+        {
+            "name": "zzz",
+            "workflow": "foo",
+            "branch": "master",
+            "status": "success",
+            "link": "https://foobar.com",
+        },
+        {
+            "name": "abc/def",
+            "workflow": "foo",
+            "branch": "master",
+            "status": "success",
+            "link": "https://foobar.com",
+        },
+        {
+            "name": "abc/def",
+            "workflow": "foo",
+            "branch": "active",
+            "status": "success",
+            "link": "https://foobar.com",
+        },
+        {
+            "name": "abc/def",
+            "workflow": "bar",
+            "branch": "master",
+            "status": "success",
+            "link": "https://foobar.com",
+        },
+        {
+            "name": "aaaa",
+            "workflow": "bar",
+            "branch": "master",
+            "status": "success",
+            "link": "https://foobar.com",
+        },
+    ]
+
+
+@fixture
+def presorted_dashboard_data():
+    return [
+        {
+            "name": "aaaa",
+            "workflow": "bar",
+            "branch": "master",
+            "status": "success",
+            "link": "https://foobar.com",
+        },
+        {
+            "name": "abc/def",
+            "workflow": "bar",
+            "branch": "master",
+            "status": "success",
+            "link": "https://foobar.com",
+        },
+        {
+            "name": "abc/def",
+            "workflow": "foo",
+            "branch": "active",
+            "status": "success",
+            "link": "https://foobar.com",
+        },
+        {
+            "name": "abc/def",
+            "workflow": "foo",
+            "branch": "master",
+            "status": "success",
+            "link": "https://foobar.com",
+        },
+        {
+            "name": "zzz",
+            "workflow": "foo",
+            "branch": "master",
+            "status": "success",
+            "link": "https://foobar.com",
+        },
+    ]

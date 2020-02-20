@@ -113,3 +113,53 @@ def test_get_previous_completed_status_unknown(
         filtered_pipelines["master"], workflow_name
     )
     assert status == circleci.STATUS_UNKNOWN
+
+
+def test_filter_pipeline_per_branch(pipelines, pipeline):
+    filtered_pipelines = circleci.filter_pipeline_per_branch(pipelines)
+    assert len(filtered_pipelines) == 1
+    assert len(filtered_pipelines["master"]) == 2
+    assert filtered_pipelines["master"][0] == pipeline
+
+
+def test_get_latest_pipeline_per_branch(pipelines, pipeline_id):
+    latest_pipelines = circleci.get_latest_pipeline_per_branch(pipelines)
+    assert len(latest_pipelines) == 1
+    assert latest_pipelines["master"] == pipeline_id
+
+
+def test_workflow_status_completed(circleci_client, workflow2, filtered_pipelines):
+    status = circleci_client.workflow_status(workflow2, filtered_pipelines["master"])
+    assert status == circleci.STATUS_SUCCESS
+
+
+def test_workflow_status_not_completed(
+    mocker, circleci_client, workflow, filtered_pipelines
+):
+    mocker.patch.object(
+        circleci_client,
+        "get_previous_completed_status",
+        return_value=circleci.STATUS_SUCCESS,
+    )
+    status = circleci_client.workflow_status(workflow, filtered_pipelines["master"])
+    assert status == f"{circleci.STATUS_CANCELED} {circleci.STATUS_SUCCESS}"
+    circleci_client.get_previous_completed_status.assert_called_once()
+
+
+def test_create_dashboard_monitor(project, workflow):
+    dashboard_monitor = circleci.create_dashboard_monitor(
+        project, workflow, "master", circleci.STATUS_SUCCESS, "https://foobar.com"
+    )
+    assert dashboard_monitor == {
+        "name": "foobar/hello-world",
+        "workflow": "deploy",
+        "branch": "master",
+        "status": circleci.STATUS_SUCCESS,
+        "link": "https://foobar.com",
+    }
+
+
+def test_sort_dashboard_data(dashboard_data, presorted_dashboard_data):
+    sorted_dashboard_data = circleci.sort_dashboard_data(dashboard_data)
+    assert len(sorted_dashboard_data) == len(dashboard_data)
+    assert sorted_dashboard_data == presorted_dashboard_data
