@@ -1,3 +1,5 @@
+.DS_Store
+
 requirements.txt
 *.json
 __pycache__

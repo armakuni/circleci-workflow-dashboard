@@ -6,6 +6,8 @@ The built in tools for CircleCI are okay if you want to see the history of every
 
 This dashboard is designed to be displayed loud and proud to show everyone what urgent issues have been found in the builds. The quick-look nature enables teams to focus on the important stuff quickly.
 
+![CircleCI Dashboard Overview](docs/imgs/overview.png)
+
 ## Installation
 
 This project uses [Poetry](https://python-poetry.org/) to manage dependencies. Make sure this is [installed](https://python-poetry.org/docs/#installation)
@@ -32,3 +34,42 @@ With the dependencies installed and the API Token available, start the dashboard
 ```bash
 $ poetry run python app.py
 ```
+
+By default this will run on http://localhost:5000
+
+## Legend
+
+As a dashboard, colours are important. So here's what the various colours will mean
+
+### Successful Build
+
+A completed, successful build will be a solid green block
+
+![CircleCI Dashboard Successful Build](docs/imgs/success.png)
+
+### Failed Build
+
+A completed, failed build will be a solid red block
+
+![CircleCI Dashboard Failed Build](docs/imgs/failure.png)
+
+**Note: The following states all display the last completed build colour from above, but with an indicator that something else is happening**
+
+### In Progress Build
+
+A build that is currently running will have a bouncing blue border
+
+![CircleCI Dashboard In Progress Build](docs/imgs/building.png)
+
+### On Hold Build
+
+A build that is on hold - normally requiring a Manual Approval - will have a bouncing purple border
+
+![CircleCI Dashboard On Hold Build](docs/imgs/on_hold.png)
+
+### Cancelled Build
+
+A manually cancelled build will have a static grey border
+
+![CircleCI Dashboard Cancelled Build](docs/imgs/cancelled.png)
+
