@@ -1,0 +1,30 @@
+version: 2.1
+jobs:
+  unit-test:
+    docker:
+    - image: circleci/python:3.8
+    environment:
+      POETRY_CACHE_DIR: /home/circleci/project/.poetry
+    steps:
+    - restore_cache:
+        keys:
+        - deps-{{ checksum "poetry.lock" }}
+    - run:
+        command: poetry install
+        name: Poetry - install
+    - run:
+        command: poetry run python -m pytest
+        name: Run pytest
+    - save_cache:
+        key: deps-{{ checksum "poetry.lock" }}
+        paths:
+        - /home/circleci/project/.poetry/virtualenvs
+
+workflows:
+  version: 2
+  deploy-docker:
+    jobs:
+    - unit-test:
+        filters:
+          branches:
+            only: master
