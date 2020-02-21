@@ -36,7 +36,7 @@ With the dependencies installed and the API Token available, start the dashboard
 poetry run python app.py
 ```
 
-By default this will run on http://localhost:5000
+By default this will run on <http://localhost:5000>
 
 ### Configuration
 
