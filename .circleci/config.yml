@@ -24,7 +24,7 @@ jobs:
         - /home/circleci/project/.poetry/virtualenvs
   docker-build:
     docker:
-    - image: circleci/golang:1.13-alpine
+    - image: circleci/golang:1.13
     steps:
     - checkout
     - setup_remote_docker:
