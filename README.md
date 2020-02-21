@@ -42,12 +42,12 @@ By default this will run on http://localhost:5000
 
 There are a number of configuration options that are exposed by environment variables.
 
-| Variable          | Default                  | Description                                                                                                               |
-|-------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------|
-| CIRCLECI_TOKEN    | N\A                      | Your CircleCI API Token                                                                                                   |
-| PORT              | 5000                     | The port for the web server to listen on                                                                                  |
-| CIRCLECI_API_URL  | https://circleci.com     | The URL of your CircleCI instance, if you are running an on-prem install                                                  |
-| CIRCLECI_JOBS_URL | https://app.circleci.com | The URL of your CircleCI jobs, this is often has a different prefix to the API URL, if you are running an on-prem install |
+| Variable          | Default                    | Description                                                                                                               |
+|-------------------|----------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| CIRCLECI_TOKEN    | N\A                        | Your CircleCI API Token                                                                                                   |
+| PORT              | 5000                       | The port for the web server to listen on                                                                                  |
+| CIRCLECI_API_URL  | <https://circleci.com>     | The URL of your CircleCI instance, if you are running an on-prem install                                                  |
+| CIRCLECI_JOBS_URL | <https://app.circleci.com> | The URL of your CircleCI jobs, this is often has a different prefix to the API URL, if you are running an on-prem install |
 
 ## Legend
 
