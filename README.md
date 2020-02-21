@@ -1,5 +1,7 @@
 # CircleCI Workflow Dashboard
 
+[![CircleCI](https://circleci.com/gh/armakuni/circleci-workflow-dashboard.svg?style=shield)](https://circleci.com/gh/armakuni/circleci-workflow-dashboard)
+
 Gives a build radiator view of your CircleCI workflows.
 
 The built in tools for CircleCI are okay if you want to see the history of everything ever. but that's not helpful for reacting to issues and failures.
