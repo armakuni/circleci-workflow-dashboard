@@ -28,7 +28,8 @@ jobs:
     steps:
     - checkout
     - setup_remote_docker:
-        docker_layer_caching: true
+        # Caching not available on free plan
+        docker_layer_caching: false
     - run: |
         TAG=1.0.$CIRCLE_BUILD_NUM
         docker build -t armakuni/circleci-workflow-dashboard:$TAG .
