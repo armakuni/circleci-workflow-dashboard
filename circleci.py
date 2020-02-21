@@ -19,14 +19,12 @@ COMPLETED_STATUSES = [
     STATUS_UNKNOWN,
 ]
 
+DEFAULT_API_URL = "https://circleci.com"
+DEFAULT_JOBS_URL = "https://app.circleci.com"
+
 
 class CircleCI:
-    def __init__(
-        self,
-        api_token,
-        api_url="https://circleci.com",
-        job_url="https://app.circleci.com",
-    ):
+    def __init__(self, api_token, api_url=DEFAULT_API_URL, job_url=DEFAULT_JOBS_URL):
         self.api_token = api_token
         self.api_url = api_url
         self.job_url = job_url

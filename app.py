@@ -9,8 +9,15 @@ import circleci
 REFRESH_INTERVAL = 30
 
 port = os.getenv("PORT", "5000")
-api_token = os.environ["CIRCLECI_TOKEN"]
-circleci_client = circleci.CircleCI(api_token)
+circleci_api_url = os.getenv("CIRCLECI_API_URL", circleci.DEFAULT_API_URL)
+circleci_jobs_url = os.getenv("CIRCLECI_JOBS_URL", circleci.DEFAULT_JOBS_URL)
+
+api_token = os.getenv("CIRCLECI_TOKEN", None)
+if api_token is None:
+    print("You must provide a CIRCLECI_TOKEN as an environment variable")
+    exit(1)
+
+circleci_client = circleci.CircleCI(api_token, circleci_api_url, circleci_jobs_url)
 
 
 def current_time():
