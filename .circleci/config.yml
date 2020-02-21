@@ -24,7 +24,7 @@ jobs:
         - /home/circleci/project/.poetry/virtualenvs
   docker-build:
     docker:
-    - image: circleci/golang:1.13
+    - image: circleci/python:3.8
     steps:
     - checkout
     - setup_remote_docker:
@@ -32,6 +32,7 @@ jobs:
         docker_layer_caching: false
     - run: |
         TAG=1.0.$CIRCLE_BUILD_NUM
+        poetry export -f requirements.txt -o requirements.txt
         docker build -t armakuni/circleci-workflow-dashboard:$TAG .
         docker tag armakuni/circleci-workflow-dashboard:$TAG armakuni/circleci-workflow-dashboard:latest
         echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
