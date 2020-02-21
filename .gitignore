@@ -7,3 +7,4 @@ __pycache__
 .idea/
 venv/
 .pytest_report
+pytest_report

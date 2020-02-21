@@ -14,10 +14,10 @@ jobs:
         command: poetry install
         name: Poetry - install
     - run:
-        command: poetry run python -m pytest --junitxml=.pytest_report
+        command: poetry run python -m pytest --junitxml=pytest_report/report.xml
         name: Run pytest
     - store_test_results:
-        path: /home/circleci/project/.pytest_report
+        path: /home/circleci/project/pytest_report/
     - save_cache:
         key: deps-{{ checksum "poetry.lock" }}
         paths:
