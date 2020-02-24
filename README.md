@@ -6,6 +6,8 @@ Gives a build radiator view of your CircleCI workflows.
 
 The built in tools for CircleCI are okay if you want to see the history of everything ever. but that's not helpful for reacting to issues and failures.
 
+To read more about why we built this tool and why we think its useful check out [our blog](https://cloudnative.ly/giving-circleci-a-focus-on-continuous-deployment-36fe835c97be).
+
 This dashboard is designed to be displayed loud and proud to show everyone what urgent issues have been found in the builds. The quick-look nature enables teams to focus on the important stuff quickly.
 
 ![CircleCI Dashboard Overview](docs/imgs/overview.png)
