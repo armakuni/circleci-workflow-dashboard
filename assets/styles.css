@@ -62,6 +62,7 @@ a {
   background: #7F7F7F;
   position: relative;
   margin: 4px;
+  border-radius: 2%/3%;
 }
 
 .status {
@@ -77,6 +78,7 @@ a {
   height: 100%;
   margin: 0;
   padding: 0;
+  border-radius: 2%/3%;
 }
 
 .inner {
@@ -96,16 +98,6 @@ a {
 
 .running .inner {
   height: 100%;
-}
-
-@-webkit-keyframes pulseBorder {
-  from {
-    outline-offset: 0;
-  }
-
-  to {
-    outline-offset: 4px;
-  }
 }
 
 .paused_job {
@@ -131,27 +123,91 @@ a {
 /* Animated borders for activity */
 .running,
 .on_hold {
-  animation-name: pulseBorder;
-  -webkit-animation-name: pulseBorder;
   animation-iteration-count: infinite;
   -webkit-animation-iteration-count: infinite;
   animation-timing-function: ease;
   -webkit-animation-timing-function: ease;
   animation-direction: alternate;
   -webkit-animation-direction: alternate;
-  animation-duration: 0.5s;
-  -webkit-animation-duration: 0.5s;
+  animation-duration: 1s;
+  -webkit-animation-duration: 1s;
   outline-offset: 0;
 }
 
 .running {
-  outline: solid 7px #3495DC;
+  animation-name: pulse-running;
+  -webkit-animation-name: pulse-running;
 }
 
 .on_hold {
-  outline: solid 7px #8167E4;
+  animation-name: pulse-on-hold;
+  -webkit-animation-name: pulse-on-hold;
 }
 
 .canceled {
-  outline: solid 7px #555555;
+  -moz-box-shadow: 0 0 0 2vw #555555;
+  box-shadow: 0 0 0 2vw #555555;
+  -webkit-box-shadow: 0 0 0 2vw #555555;
+}
+
+@-webkit-keyframes pulse-on-hold {
+  0% {
+    -webkit-box-shadow: 0 0 0 0 #8167E4;
+  }
+
+  70% {
+    -webkit-box-shadow: 0 0 0 2vw rgba(128, 103, 228, 0);
+  }
+
+  100% {
+    -webkit-box-shadow: 0 0 0 0 rgba(128, 103, 228, 0);
+  }
+}
+
+@keyframes pulse-on-hold {
+  0% {
+    -moz-box-shadow: 0 0 0 0 #8167E4;
+    box-shadow: 0 0 0 0 #8167E4
+  }
+
+  70% {
+    -moz-box-shadow: 0 0 0 2vw rgba(128, 103, 228, 0);
+    box-shadow: 0 0 0 2vw rgba(128, 103, 228, 0);
+  }
+
+  100% {
+    -moz-box-shadow: 0 0 0 0 rgba(128, 103, 228, 0);
+    box-shadow: 0 0 0 0 rgba(128, 103, 228, 0);
+  }
+}
+
+@-webkit-keyframes pulse-running {
+  0% {
+    -webkit-box-shadow: 0 0 0 0 #3495DC;
+  }
+
+  70% {
+    -webkit-box-shadow: 0 0 0 2vw rgba(52, 150, 220, 0);
+  }
+
+  100% {
+    -webkit-box-shadow: 0 0 0 0 rgba(52, 150, 220, 0);
+  }
+}
+
+@keyframes pulse-running {
+  0% {
+    -moz-box-shadow: 0 0 0 0 #3495DC;
+    box-shadow: 0 0 0 0 #3495DC
+  }
+
+  70% {
+    -moz-box-shadow: 0 0 0 2vw rgba(52, 150, 220, 0);
+    box-shadow: 0 0 0 2vw rgba(52, 150, 220, 0);
+  }
+
+  100% {
+    -moz-box-shadow: 0 0 0 0 rgba(52, 150, 220, 0);
+    box-shadow: 0 0 0 0 rgba(52, 150, 220, 0);
+  }
 }

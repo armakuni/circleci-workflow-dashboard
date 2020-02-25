@@ -10,7 +10,7 @@ To read more about why we built this tool and why we think its useful check out 
 
 This dashboard is designed to be displayed loud and proud to show everyone what urgent issues have been found in the builds. The quick-look nature enables teams to focus on the important stuff quickly.
 
-![CircleCI Dashboard Overview](docs/imgs/overview.png)
+![CircleCI Dashboard Overview](docs/imgs/overview.gif)
 
 ## Installation
 
@@ -75,13 +75,13 @@ A completed, failed build will be a solid red block
 
 A build that is currently running will have a bouncing blue border
 
-![CircleCI Dashboard In Progress Build](docs/imgs/building.png)
+![CircleCI Dashboard In Progress Build](docs/imgs/building.gif)
 
 ### On Hold Build
 
 A build that is on hold - normally requiring a Manual Approval - will have a bouncing purple border
 
-![CircleCI Dashboard On Hold Build](docs/imgs/on_hold.png)
+![CircleCI Dashboard On Hold Build](docs/imgs/on_hold.gif)
 
 ### Cancelled Build
 
