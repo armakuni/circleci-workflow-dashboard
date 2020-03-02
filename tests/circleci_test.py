@@ -74,12 +74,11 @@ def test_get_all_pipelines_auth_error(
     )
 
 
-def ttest_get_all_pipelines_error(
+def test_get_all_pipelines_error(
     requests_mock, circleci_client, project_slug, pipeline_page_2, pipeline
 ):
     requests_mock.get(
         f"{circleci_client.api_url}/api/v2/project/{project_slug}/pipeline?page-token=",
-        json=pipeline_page_2,
         text="Something went wrong",
         status_code=500,
     )
