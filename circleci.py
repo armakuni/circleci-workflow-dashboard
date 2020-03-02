@@ -149,7 +149,7 @@ def get_latest_pipeline_per_branch(pipelines):
 
 def create_dashboard_monitor(project, workflow, branch, status, link):
     return {
-        "name": f"{project['username']}/{project['reponame']}",
+        "name": _project_name(project),
         "workflow": workflow["name"],
         "branch": branch,
         "status": status,
@@ -157,11 +157,16 @@ def create_dashboard_monitor(project, workflow, branch, status, link):
     }
 
 
-def get_dashboard_data(circleci_client):
+def get_dashboard_data(circleci_client, project_filters=None):
     compound_keys = []
     dashboard_data = []
     # Iterate all projects followed in CircleCI
     for project in circleci_client.get_all_projects():
+        if (
+            project_filters is not None
+            and _project_name(project) not in project_filters
+        ):
+            continue
         project_slug = circleci_client.generate_project_slug(project)
         # Get the pipelines (runs) associated with the project
         pipelines = circleci_client.get_all_pipelines(project_slug)
@@ -194,3 +199,7 @@ def sort_dashboard_data(dashboard_data):
     return sorted(
         dashboard_data, key=lambda i: f"{i['name']}-{i['workflow']}-{i['branch']}"
     )
+
+
+def _project_name(project):
+    return f"{project['username']}/{project['reponame']}"

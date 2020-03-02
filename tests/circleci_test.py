@@ -215,3 +215,43 @@ def test_get_dashboard_data(
             "workflow": "deploy",
         },
     ]
+
+
+def test_get_dashboard_data(
+    mocker,
+    circleci_client,
+    dashboard_projects,
+    dashboard_pipeline_side_effect,
+    dashboard_workflow_side_effect,
+):
+    mocker.patch.object(
+        circleci_client, "get_all_projects", return_value=dashboard_projects
+    )
+    mocker.patch.object(
+        circleci_client, "get_all_pipelines", side_effect=dashboard_pipeline_side_effect
+    )
+    mocker.patch.object(
+        circleci_client,
+        "get_workflows_for_pipeline",
+        side_effect=dashboard_workflow_side_effect,
+    )
+    dashboard_data = circleci.get_dashboard_data(
+        circleci_client, {"foobar/example": None}
+    )
+    assert len(dashboard_data) == 2
+    assert dashboard_data == [
+        {
+            "branch": "dev",
+            "link": "https://app.circleci.com/github/foobar/example/pipelines/5/workflows/workflow_6",
+            "name": "foobar/example",
+            "status": "success",
+            "workflow": "test",
+        },
+        {
+            "branch": "master",
+            "link": "https://app.circleci.com/github/foobar/example/pipelines/6/workflows/workflow_6",
+            "name": "foobar/example",
+            "status": "success",
+            "workflow": "test",
+        },
+    ]

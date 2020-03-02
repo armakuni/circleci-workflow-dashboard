@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import jinja2
 import os
 import circleci
+import json
 
 
 REFRESH_INTERVAL = 30
@@ -11,6 +12,7 @@ REFRESH_INTERVAL = 30
 port = os.getenv("PORT", "5000")
 circleci_api_url = os.getenv("CIRCLECI_API_URL", circleci.DEFAULT_API_URL)
 circleci_jobs_url = os.getenv("CIRCLECI_JOBS_URL", circleci.DEFAULT_JOBS_URL)
+circleci_dashboard_filter = json.loads(os.getenv("DASHBOARD_FILTER", "null"))
 
 api_token = os.getenv("CIRCLECI_TOKEN", None)
 if api_token is None:
@@ -30,7 +32,9 @@ class Dashboard(resource.Resource):
     current_time = ""
 
     def update_projects(self):
-        self.projects = circleci.get_dashboard_data(circleci_client)
+        self.projects = circleci.get_dashboard_data(
+            circleci_client, circleci_dashboard_filter
+        )
         self.current_time = current_time()
 
     def render_GET(self, request):
