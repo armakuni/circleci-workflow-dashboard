@@ -1,10 +1,34 @@
 import circleci
+import pytest
 
 
 def test_get_all_projects(requests_mock, circleci_client, projects):
     requests_mock.get(f"{circleci_client.api_url}/api/v1.1/projects", json=projects)
     projects_resp = circleci_client.get_all_projects()
     assert projects_resp == projects
+
+
+def test_get_all_projects_auth_error(requests_mock, circleci_client, projects):
+    requests_mock.get(
+        f"{circleci_client.api_url}/api/v1.1/projects", json=projects, status_code=403
+    )
+    with pytest.raises(circleci.CircleCIAuthError) as err:
+        circleci_client.get_all_projects()
+    assert (
+        str(err.value)
+        == "Authentication error hitting projects, do you have permission?"
+    )
+
+
+def test_get_all_projects_error(requests_mock, circleci_client):
+    requests_mock.get(
+        f"{circleci_client.api_url}/api/v1.1/projects",
+        text="Something went wrong",
+        status_code=500,
+    )
+    with pytest.raises(circleci.CircleCIRequestError) as err:
+        circleci_client.get_all_projects()
+    assert str(err.value) == "Error 500: Something went wrong"
 
 
 def test_workflow_link(circleci_client, project_slug, pipeline_id, workflow_id):
@@ -32,6 +56,36 @@ def test_get_all_pipelines_single_page(
     pipelines = circleci_client.get_all_pipelines(project_slug)
     assert len(pipelines) == 2
     assert pipelines[0] == pipeline
+
+
+def test_get_all_pipelines_auth_error(
+    requests_mock, circleci_client, project_slug, pipeline_page_2, pipeline
+):
+    requests_mock.get(
+        f"{circleci_client.api_url}/api/v2/project/{project_slug}/pipeline?page-token=",
+        json=pipeline_page_2,
+        status_code=403,
+    )
+    with pytest.raises(circleci.CircleCIAuthError) as err:
+        circleci_client.get_all_pipelines(project_slug)
+    assert (
+        str(err.value)
+        == "Authentication error hitting project/github/foobar/hello-world/pipeline, do you have permission?"
+    )
+
+
+def ttest_get_all_pipelines_error(
+    requests_mock, circleci_client, project_slug, pipeline_page_2, pipeline
+):
+    requests_mock.get(
+        f"{circleci_client.api_url}/api/v2/project/{project_slug}/pipeline?page-token=",
+        json=pipeline_page_2,
+        text="Something went wrong",
+        status_code=500,
+    )
+    with pytest.raises(circleci.CircleCIRequestError) as err:
+        circleci_client.get_all_pipelines(project_slug)
+    assert str(err.value) == "Error 500: Something went wrong"
 
 
 def test_get_all_pipelines_multi_page(

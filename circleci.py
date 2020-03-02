@@ -36,6 +36,12 @@ class CircleCI:
         response = requests.get(
             f"{self.api_url}/api/v1.1/{api_target}", auth=(self.api_token, "")
         )
+        if not response.ok:
+            if response.status_code in [401, 403]:
+                raise CircleCIAuthError(
+                    f"Authentication error hitting {api_target}, do you have permission?"
+                )
+            raise CircleCIRequestError(f"Error {response.status_code}: {response.text}")
         return response.json()
 
     # v2 seems to have introduced pagination.
@@ -51,6 +57,14 @@ class CircleCI:
             response = requests.get(
                 f"{api_url}?page-token={next_page}", auth=(self.api_token, "")
             )
+            if not response.ok:
+                if response.status_code in [401, 403]:
+                    raise CircleCIAuthError(
+                        f"Authentication error hitting {api_target}, do you have permission?"
+                    )
+                raise CircleCIRequestError(
+                    f"Error {response.status_code}: {response.text}"
+                )
             response_data = response.json()
             all_results.extend(response_data["items"])
             next_page = response_data["next_page_token"]
@@ -203,3 +217,11 @@ def sort_dashboard_data(dashboard_data):
 
 def _project_name(project):
     return f"{project['username']}/{project['reponame']}"
+
+
+class CircleCIAuthError(Exception):
+    pass
+
+
+class CircleCIRequestError(Exception):
+    pass
