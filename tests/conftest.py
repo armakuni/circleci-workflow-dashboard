@@ -115,9 +115,75 @@ def pipeline_id():
 
 
 @fixture
+def prev_pipeline_id():
+    return "afc20fa9-1e61-4bcf-9353-de9a812374b9"
+
+
+@fixture
+def prev_pipeline_id_2():
+    return "b1d20fa9-1e61-4bcf-9353-de9a81237c36"
+
+
+@fixture
 def pipeline(pipeline_id):
     return {
         "id": pipeline_id,
+        "errors": [],
+        "project_slug": "gh/foobar/hello-world",
+        "updated_at": "2020-02-19T10:19:23.471Z",
+        "number": 18,
+        "state": "created",
+        "created_at": "2020-02-19T10:19:23.471Z",
+        "trigger": {
+            "received_at": "2020-02-19T10:19:23.436Z",
+            "type": "webhook",
+            "actor": {
+                "login": "foobar",
+                "avatar_url": "https://foobar.com/u/123456?v=4",
+            },
+        },
+        "vcs": {
+            "origin_repository_url": "https://github.com/foobar/hello-world",
+            "target_repository_url": "https://github.com/foobar/hello-world",
+            "revision": "5db088471dd324e94cf6f7af8084d2ebd7109f69",
+            "provider_name": "GitHub",
+            "branch": "master",
+        },
+    }
+
+
+@fixture
+def pipeline_prev(prev_pipeline_id):
+    return {
+        "id": prev_pipeline_id,
+        "errors": [],
+        "project_slug": "gh/foobar/hello-world",
+        "updated_at": "2020-02-19T10:19:23.471Z",
+        "number": 18,
+        "state": "created",
+        "created_at": "2020-02-19T10:19:23.471Z",
+        "trigger": {
+            "received_at": "2020-02-19T10:19:23.436Z",
+            "type": "webhook",
+            "actor": {
+                "login": "foobar",
+                "avatar_url": "https://foobar.com/u/123456?v=4",
+            },
+        },
+        "vcs": {
+            "origin_repository_url": "https://github.com/foobar/hello-world",
+            "target_repository_url": "https://github.com/foobar/hello-world",
+            "revision": "5db088471dd324e94cf6f7af8084d2ebd7109f69",
+            "provider_name": "GitHub",
+            "branch": "master",
+        },
+    }
+
+
+@fixture
+def pipeline_prev2(prev_pipeline_id_2):
+    return {
+        "id": prev_pipeline_id_2,
         "errors": [],
         "project_slug": "gh/foobar/hello-world",
         "updated_at": "2020-02-19T10:19:23.471Z",
@@ -227,7 +293,7 @@ def workflow_name():
 
 
 @fixture
-def workflow(workflow_id, workflow_name):
+def workflow(workflow_id, workflow_name, pipeline_id):
     return {
         "stopped_at": "2020-02-19T16:31:51Z",
         "name": workflow_name,
@@ -236,12 +302,26 @@ def workflow(workflow_id, workflow_name):
         "status": "canceled",
         "id": "7d1c893f-982f-45a3-9aec-627345cece6d",
         "created_at": "2020-02-19T16:29:52Z",
-        "pipeline_id": "666942a9-41d2-4239-8fc3-babd6e0e4cd0",
+        "pipeline_id": pipeline_id,
     }
 
 
 @fixture
-def workflow2(workflow_name):
+def workflow2(pipeline_id):
+    return {
+        "stopped_at": "2020-02-19T15:52:04Z",
+        "name": "Build Error",
+        "project_slug": "gh/foobar/hello-world",
+        "pipeline_number": 28,
+        "status": "errored",
+        "id": "fc17ac52-9558-4aad-8d98-1234c48f50as",
+        "created_at": "2020-02-19T15:48:49Z",
+        "pipeline_id": pipeline_id,
+    }
+
+
+@fixture
+def workflow3(workflow_name, pipeline_id):
     return {
         "stopped_at": "2020-02-19T15:52:04Z",
         "name": workflow_name,
@@ -250,13 +330,42 @@ def workflow2(workflow_name):
         "status": "success",
         "id": "fc17ac52-9558-4aad-8d98-1234c48f5055",
         "created_at": "2020-02-19T15:48:49Z",
-        "pipeline_id": "666942a9-41d2-4239-8fc3-babd6e0e4cd0",
+        "pipeline_id": pipeline_id,
     }
 
 
 @fixture
-def workflows_page_1(workflow, workflow2):
-    return {"next_page_token": None, "items": [workflow, workflow2]}
+def workflow4(workflow_name, prev_pipeline_id_2):
+    return {
+        "stopped_at": "2020-02-19T15:52:04Z",
+        "name": workflow_name,
+        "project_slug": "gh/foobar/hello-world",
+        "pipeline_number": 28,
+        "status": "success",
+        "id": "fc17ac52-9558-4aad-8d98-1234c48f5055",
+        "created_at": "2020-02-19T15:48:49Z",
+        "pipeline_id": prev_pipeline_id_2,
+    }
+
+
+@fixture
+def workflows_page_1(workflow, workflow3):
+    return {"next_page_token": None, "items": [workflow, workflow3]}
+
+
+@fixture
+def workflows_page_prev_1(workflow):
+    return {"next_page_token": None, "items": [workflow]}
+
+
+@fixture
+def workflows_page_prev_2(workflow2):
+    return {"next_page_token": None, "items": [workflow2]}
+
+
+@fixture
+def workflows_page_prev_3(workflow4):
+    return {"next_page_token": None, "items": [workflow4]}
 
 
 @fixture
@@ -307,6 +416,11 @@ def jobs_page_1(job, job2):
 @fixture
 def filtered_pipelines(pipeline):
     return {"master": [pipeline]}
+
+
+@fixture
+def filtered_pipelines_prev(pipeline, pipeline_prev, pipeline_prev2):
+    return {"master": [pipeline, pipeline_prev, pipeline_prev2]}
 
 
 @fixture

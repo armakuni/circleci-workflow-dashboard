@@ -135,17 +135,30 @@ def test_get_jobs_for_workflow(
 def test_get_previous_completed_status(
     requests_mock,
     circleci_client,
-    filtered_pipelines,
+    filtered_pipelines_prev,
     workflow_name,
-    workflows_page_1,
+    workflows_unknown,
+    workflows_page_prev_1,
+    workflows_page_prev_2,
+    workflows_page_prev_3,
     pipeline_id,
+    prev_pipeline_id,
+    prev_pipeline_id_2,
 ):
     requests_mock.get(
         f"{circleci_client.api_url}/api/v2/pipeline/{pipeline_id}/workflow?page-token=",
-        json=workflows_page_1,
+        json=workflows_page_prev_1,
+    )
+    requests_mock.get(
+        f"{circleci_client.api_url}/api/v2/pipeline/{prev_pipeline_id}/workflow?page-token=",
+        json=workflows_page_prev_2,
+    )
+    requests_mock.get(
+        f"{circleci_client.api_url}/api/v2/pipeline/{prev_pipeline_id_2}/workflow?page-token=",
+        json=workflows_page_prev_3,
     )
     status = circleci_client.get_previous_completed_status(
-        filtered_pipelines["master"], workflow_name
+        filtered_pipelines_prev["master"], workflow_name
     )
     assert status == circleci.STATUS_SUCCESS
 
@@ -181,8 +194,8 @@ def test_get_latest_pipeline_per_branch(pipelines, pipeline_id):
     assert latest_pipelines["master"] == pipeline_id
 
 
-def test_workflow_status_completed(circleci_client, workflow2, filtered_pipelines):
-    status = circleci_client.workflow_status(workflow2, filtered_pipelines["master"])
+def test_workflow_status_completed(circleci_client, workflow3, filtered_pipelines):
+    status = circleci_client.workflow_status(workflow3, filtered_pipelines["master"])
     assert status == circleci.STATUS_SUCCESS
 
 

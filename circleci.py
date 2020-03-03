@@ -102,6 +102,8 @@ class CircleCI:
         for pipeline in filtered_pipelines:
             workflow_in_pipeline = False
             for workflow in self.get_workflows_for_pipeline(pipeline["id"]):
+                if workflow["name"] == "Build Error":
+                    workflow_in_pipeline = True
                 if workflow["name"] == workflow_name:
                     workflow_in_pipeline = True
                     if workflow["status"] in COMPLETED_STATUSES:
