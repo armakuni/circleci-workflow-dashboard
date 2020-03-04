@@ -143,7 +143,9 @@ class CircleCI:
 def filter_pipeline_per_branch(pipelines):
     filtered_pipelines = {}
     for pipeline in pipelines:
-        branch = pipeline["vcs"]["branch"]
+        branch = pipeline["vcs"].get("branch", None)
+        if branch is None:
+            continue
         if branch not in filtered_pipelines:
             filtered_pipelines[branch] = []
         filtered_pipelines[branch].append(pipeline)
@@ -156,8 +158,8 @@ def filter_pipeline_per_branch(pipelines):
 def get_latest_pipeline_per_branch(pipelines):
     latest_pipeline_ids = {}
     for pipeline in pipelines:
-        branch = pipeline["vcs"]["branch"]
-        if branch in latest_pipeline_ids:
+        branch = pipeline["vcs"].get("branch", None)
+        if branch in latest_pipeline_ids or branch is None:
             continue
         latest_pipeline_ids[branch] = pipeline["id"]
     return latest_pipeline_ids

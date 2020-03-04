@@ -188,10 +188,27 @@ def test_filter_pipeline_per_branch(pipelines, pipeline):
     assert filtered_pipelines["master"][0] == pipeline
 
 
+def test_filter_pipeline_per_branch_no_branch(dashboard_pipelines_no_branch):
+    filtered_pipelines = circleci.filter_pipeline_per_branch(
+        dashboard_pipelines_no_branch
+    )
+    assert len(filtered_pipelines) == 1
+    assert len(filtered_pipelines["master"]) == 1
+    assert filtered_pipelines["master"][0]["id"] == "8"
+
+
 def test_get_latest_pipeline_per_branch(pipelines, pipeline_id):
     latest_pipelines = circleci.get_latest_pipeline_per_branch(pipelines)
     assert len(latest_pipelines) == 1
     assert latest_pipelines["master"] == pipeline_id
+
+
+def test_get_latest_pipeline_per_branch_no_branch(dashboard_pipelines_no_branch):
+    latest_pipelines = circleci.get_latest_pipeline_per_branch(
+        dashboard_pipelines_no_branch
+    )
+    assert len(latest_pipelines) == 1
+    assert latest_pipelines["master"] == "8"
 
 
 def test_workflow_status_completed(circleci_client, workflow3, filtered_pipelines):

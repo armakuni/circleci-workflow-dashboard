@@ -533,6 +533,11 @@ def dashboard_pipelines_example():
 
 
 @fixture
+def dashboard_pipelines_no_branch():
+    return [{"id": "7", "vcs": {}}, {"id": "8", "vcs": {"branch": "master"}}]
+
+
+@fixture
 def dashboard_workflows_4():
     return [
         {
