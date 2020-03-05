@@ -5,28 +5,28 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="/assets/favicon.png" sizes="32x32">
     <link rel="stylesheet" type="text/css" href="/assets/styles.css">
-    <script>window.refresh_interval = {{ refreshInterval }}</script>
+    <script>window.refresh_interval = {{ .RefreshInterval }}</script>
     <script src="/assets/favico-0.3.10.min.js"></script>
     <script src="/assets/refresh.js"></script>
   </head>
   <body>
     <div class="time">
-      {{ now }} (<span id="countdown">{{ refreshInterval }}</span>)
+      {{ .Now }} (<span id="countdown">{{ .RefreshInterval }}</span>)
       <div class="right">
         <a class="github" href="https://github.com/armakuni/circleci-workflow-dashboard" target="_blank">&nbsp;</a>
       </div>
     </div>
     <div class="scalable">
-    {% for project in projects %}
-      <a href="{{ project['link'] }}" target="_blank" class="outer">
-        <div class="status {{ project['status'] }}"></div>
+    {{range .DashboardMonitors}}
+      <a href="{{ .Link }}" target="_blank" class="outer">
+        <div class="status {{ .Status }}"></div>
         <div class="inner">
-          <span class="{{ project['name'] }}"><span>{{ project['name'] }}</span></span>
-          <span class="{{ project['workflow'] }}"><span>{{ project['workflow'] }}</span></span>
-          <span class="{{ project['branch'] }}"><span>{{ project['branch'] }}</span></span>
+          <span class="{{ .Name }}"><span>{{ .Name }}</span></span>
+          <span class="{{ .Workflow }}"><span>{{ .Workflow }}</span></span>
+          <span class="{{ .Branch }}"><span>{{ .Branch }}</span></span>
         </div>
       </a>
-    {% endfor %}
+    {{end}}
     </div>
   </body>
 </html>

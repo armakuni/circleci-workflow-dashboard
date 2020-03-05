@@ -14,12 +14,10 @@ This dashboard is designed to be displayed loud and proud to show everyone what 
 
 ## Installation
 
-This project uses [Poetry](https://python-poetry.org/) to manage dependencies. Make sure this is [installed](https://python-poetry.org/docs/#installation)
-
-To install the dependencies for this project, run poetry
+To install the dependencies for this project
 
 ```bash
-poetry install
+go get ./...
 ```
 
 ## Setup
@@ -34,13 +32,20 @@ export CIRCLECI_TOKEN=<Personal API Token>
 
 ## Running
 
-With the dependencies installed and the API Token available, start the dashboard via poetry
+With the dependencies installed and the API Token available, start the dashboard
 
 ```bash
-poetry run python app.py
+go run main.go
 ```
 
-By default this will run on <http://localhost:5000>
+or
+
+```bash
+go build
+./circleci-workflow-dashboard
+```
+
+By default this will run on <http://localhost:8080>
 
 ### Configuration
 
@@ -95,15 +100,28 @@ A manually cancelled build will have a static grey border
 We also distribute the dashboard as a docker image
 
 ```bash
-docker run -e CIRCLECI_TOKEN=<api_token> --rm -ti -p 5000:5000 armakuni/circleci-workflow-dashboard
+docker run -e CIRCLECI_TOKEN=<api_token> --rm -ti -p 8080:8080 armakuni/circleci-workflow-dashboard
 ```
 
-If you want to start run on a different port change change the `-p` param. For example `-p 80:5000` will start the service on port `80`.
+If you want to start run on a different port change change the `-p` param. For example `-p 80:8080` will start the service on port `80`.
 
-**Note**: As this is done via port mapping in docker you will still see the output as starting on port `5000`.
+**Note**: As this is done via port mapping in docker you will still see the output as starting on port `8080`.
 
 ### Building the image
 
 ```bash
 ./scripts/docker_build.sh
+```
+
+## Testing
+
+```sh
+ginkgo -r
+```
+
+### Generating the mocks
+
+```sh
+go get github.com/vektra/mockery/.../
+mockery -dir circleci -name CircleCI
 ```

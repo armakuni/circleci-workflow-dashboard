@@ -2,5 +2,5 @@
 
 set -euo pipefail
 
-poetry export -f requirements.txt -o requirements.txt
+go build
 docker build -t armakuni/circleci-workflow-dashboard .

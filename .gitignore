@@ -8,3 +8,7 @@ __pycache__
 venv/
 .pytest_report
 pytest_report
+foo.py
+main
+*.coverprofile
+circleci-workflow-dashboard

@@ -2,29 +2,24 @@ version: 2.1
 jobs:
   unit-test:
     docker:
-    - image: circleci/python:3.8
-    environment:
-      POETRY_CACHE_DIR: /home/circleci/project/.poetry
+    - image: circleci/golang:1.13
+    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
     - checkout
     - restore_cache:
         keys:
-        - deps-{{ checksum "poetry.lock" }}
+        - pkg-cache
     - run:
-        command: poetry install
-        name: Poetry - install
-    - run:
-        command: poetry run python -m pytest --junitxml=pytest_report/report.xml
-        name: Run pytest
-    - store_test_results:
-        path: /home/circleci/project/pytest_report/
+        name: Unit tests
+        command: |
+          go test ./...
     - save_cache:
-        key: deps-{{ checksum "poetry.lock" }}
+        key: pkg-cache
         paths:
-        - /home/circleci/project/.poetry/virtualenvs
+        - "/go/pkg"
   docker-build:
     docker:
-    - image: circleci/python:3.8
+    - image: circleci/golang:1.13
     steps:
     - checkout
     - setup_remote_docker:
@@ -32,7 +27,7 @@ jobs:
         docker_layer_caching: false
     - run: |
         TAG=1.0.$CIRCLE_BUILD_NUM
-        poetry export -f requirements.txt -o requirements.txt
+        go build
         docker build -t armakuni/circleci-workflow-dashboard:$TAG .
         docker tag armakuni/circleci-workflow-dashboard:$TAG armakuni/circleci-workflow-dashboard:latest
         echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
