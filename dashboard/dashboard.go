@@ -82,9 +82,15 @@ func (d Monitors) AddWorkflows(circleCIClient circleci.CircleCI, project circlec
 		if d.AlreadyExists(monitor) {
 			continue
 		}
-		status, err := circleCIClient.WorkflowStatus(filteredPipelines, workflow)
-		if err != nil {
-			return nil, err
+		var status string
+		if workflow.Name == "Build Error" {
+			status = "errored"
+		} else {
+			var err error
+			status, err = circleCIClient.WorkflowStatus(filteredPipelines, workflow)
+			if err != nil {
+				return nil, err
+			}
 		}
 		link := circleCIClient.WorkflowLink(project, pipeline, workflow)
 		monitor.Status = status

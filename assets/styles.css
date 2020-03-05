@@ -25,7 +25,6 @@ a {
 .time .right {
   position: absolute;
   top: 0;
-  ;
   right: 0;
   height: 32px;
   background: #F7F7F7;
@@ -45,7 +44,7 @@ a {
 
 .scalable {
   position: absolute;
-  top: 32px;
+  top: calc(32px + 1vw);
   right: 0;
   bottom: 0;
   left: 0;
@@ -61,7 +60,7 @@ a {
   color: white;
   background: #7F7F7F;
   position: relative;
-  margin: 4px;
+  margin: calc(4px + 0.5vw);
   border-radius: 2%/3%;
 }
 
@@ -145,9 +144,9 @@ a {
 }
 
 .canceled {
-  -moz-box-shadow: 0 0 0 2vw #555555;
-  box-shadow: 0 0 0 2vw #555555;
-  -webkit-box-shadow: 0 0 0 2vw #555555;
+  -moz-box-shadow: 0 0 0 1vw #555555;
+  box-shadow: 0 0 0 1vw #555555;
+  -webkit-box-shadow: 0 0 0 1vw #555555;
 }
 
 @-webkit-keyframes pulse-on-hold {
