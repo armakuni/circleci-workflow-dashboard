@@ -7,6 +7,10 @@ import (
 	"github.com/armakuni/circleci-workflow-dashboard/circleci"
 )
 
+type FeatureFlags struct {
+	AnimatedBuildErrors bool
+}
+
 type Monitor struct {
 	Name     string
 	Workflow string
@@ -27,7 +31,7 @@ func NewMonitor(project circleci.Project, pipeline circleci.Pipeline, workflow c
 	}
 }
 
-func Build(circleCIClient circleci.CircleCI, filter *circleci.Filter, animatedBuildErrors bool) (Monitors, error) {
+func Build(circleCIClient circleci.CircleCI, filter *circleci.Filter, featureFlags *FeatureFlags) (Monitors, error) {
 	var dashboardData Monitors
 	projects, err := circleCIClient.GetAllProjects()
 	if err != nil {
@@ -55,7 +59,7 @@ func Build(circleCIClient circleci.CircleCI, filter *circleci.Filter, animatedBu
 			if err != nil {
 				return nil, err
 			}
-			dashboardData, err = dashboardData.AddWorkflows(workflowInfo, animatedBuildErrors)
+			dashboardData, err = dashboardData.AddWorkflows(workflowInfo, featureFlags)
 			if err != nil {
 				return nil, err
 			}
@@ -86,7 +90,7 @@ func (d *Monitors) AlreadyExists(monitor Monitor) bool {
 	return false
 }
 
-func (d Monitors) AddWorkflows(workflowInfo WorkflowDetails, animatedBuildErrors bool) (Monitors, error) {
+func (d Monitors) AddWorkflows(workflowInfo WorkflowDetails, featureFlags *FeatureFlags) (Monitors, error) {
 	for _, workflow := range workflowInfo.Workflows {
 		monitor := NewMonitor(workflowInfo.Project, workflowInfo.Pipeline, workflow, "", "")
 		if d.AlreadyExists(monitor) {
@@ -98,7 +102,7 @@ func (d Monitors) AddWorkflows(workflowInfo WorkflowDetails, animatedBuildErrors
 		}
 		if workflowInfo.BuildError {
 			errorStatus := "errored"
-			if !animatedBuildErrors {
+			if !featureFlags.AnimatedBuildErrors {
 				errorStatus = "errored-static"
 			}
 			status = fmt.Sprintf("%s %s", status, errorStatus)

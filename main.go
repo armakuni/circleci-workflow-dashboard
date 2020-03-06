@@ -19,9 +19,9 @@ type Dashboard struct {
 	DashboardMonitors dashboard.Monitors
 }
 
-func updateDashboard(circleCIClient *circleci.Client, filter *circleci.Filter, ticker *time.Ticker, c *cache.Cache, animateBuildError bool) {
+func updateDashboard(circleCIClient *circleci.Client, filter *circleci.Filter, ticker *time.Ticker, c *cache.Cache, dashboardFeatureFlags *dashboard.FeatureFlags) {
 	for ; true; <-ticker.C {
-		dashboardMonitors, err := dashboard.Build(circleCIClient, filter, animateBuildError)
+		dashboardMonitors, err := dashboard.Build(circleCIClient, filter, dashboardFeatureFlags)
 		c.Set("dashErr", err, cache.NoExpiration)
 		c.Set("dashboardMonitors", dashboardMonitors, cache.NoExpiration)
 		c.Set("now", time.Now().Format("2006-01-02 15:04:05 -0700"), cache.NoExpiration)
@@ -86,12 +86,17 @@ func getRefershInterval() int {
 	return refreshInt
 }
 
-func main() {
+func getDashboardFeatureFlags() *dashboard.FeatureFlags {
 	var animateBuildError = true
-	refreshInterval := getRefershInterval()
 	if os.Getenv("ANIMATED_BUILD_ERROR") == "false" {
 		animateBuildError = false
 	}
+	return &dashboard.FeatureFlags{AnimatedBuildErrors: animateBuildError}
+}
+
+func main() {
+	refreshInterval := getRefershInterval()
+	dashboardFeatureFlags := getDashboardFeatureFlags()
 	config, filter, err := getConfig()
 	if err != nil {
 		fmt.Println(err)
@@ -104,7 +109,7 @@ func main() {
 	}
 	ticker, cacher := setup(refreshInterval)
 	defer ticker.Stop()
-	go updateDashboard(circleCIClient, filter, ticker, cacher, animateBuildError)
+	go updateDashboard(circleCIClient, filter, ticker, cacher, dashboardFeatureFlags)
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*.tmpl")
 	r.GET("/", func(c *gin.Context) {
