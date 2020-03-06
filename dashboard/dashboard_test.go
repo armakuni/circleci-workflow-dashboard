@@ -150,7 +150,9 @@ var _ = Describe("Monitors", func() {
 					Name: "test-workflow",
 				},
 			}
-			filteredPipelines = circleci.Pipelines{pipeline}
+			filteredPipelines  = circleci.Pipelines{pipeline}
+			buildError         = false
+			animatedBuildError = true
 		)
 
 		AfterEach(func() {
@@ -164,7 +166,7 @@ var _ = Describe("Monitors", func() {
 			})
 
 			It("returns an error", func() {
-				monitors, err := monitors.AddWorkflows(circleCIClient, project, pipeline, workflows, filteredPipelines)
+				monitors, err := monitors.AddWorkflows(circleCIClient, project, pipeline, workflows, filteredPipelines, buildError, animatedBuildError)
 				Ω(err).Should(MatchError("Error getting status"))
 				Ω(monitors).Should(HaveLen(0))
 			})
@@ -177,7 +179,7 @@ var _ = Describe("Monitors", func() {
 			})
 
 			It("adds a monitor per new workflow", func() {
-				monitors, err := monitors.AddWorkflows(circleCIClient, project, pipeline, workflows, filteredPipelines)
+				monitors, err := monitors.AddWorkflows(circleCIClient, project, pipeline, workflows, filteredPipelines, buildError, animatedBuildError)
 				Ω(err).Should(BeNil())
 				Ω(monitors).Should(Equal(dashboard.Monitors{{
 					Name:     "foobar/example",
@@ -217,8 +219,9 @@ var _ = Describe("#Build", func() {
 				Name: "test-workflow",
 			},
 		}
-		filteredPipelines = circleci.Pipelines{pipeline}
-		filter            = circleci.Filter{}
+		filteredPipelines  = circleci.Pipelines{pipeline}
+		filter             = circleci.Filter{}
+		animatedBuildError = true
 	)
 
 	AfterEach(func() {
@@ -231,7 +234,7 @@ var _ = Describe("#Build", func() {
 		})
 
 		It("returns an error", func() {
-			monitors, err := dashboard.Build(circleCIClient, &filter)
+			monitors, err := dashboard.Build(circleCIClient, &filter, animatedBuildError)
 			Ω(err).Should(MatchError("Error getting projects"))
 			Ω(monitors).Should(BeNil())
 		})
@@ -248,7 +251,7 @@ var _ = Describe("#Build", func() {
 			})
 
 			It("returns an error", func() {
-				monitors, err := dashboard.Build(circleCIClient, &filter)
+				monitors, err := dashboard.Build(circleCIClient, &filter, animatedBuildError)
 				Ω(err).Should(MatchError("Error getting pipelines"))
 				Ω(monitors).Should(BeNil())
 			})
@@ -265,7 +268,7 @@ var _ = Describe("#Build", func() {
 				})
 
 				It("returns an error", func() {
-					monitors, err := dashboard.Build(circleCIClient, &filter)
+					monitors, err := dashboard.Build(circleCIClient, &filter, animatedBuildError)
 					Ω(err).Should(MatchError("Error getting workflows"))
 					Ω(monitors).Should(BeNil())
 				})
@@ -282,7 +285,7 @@ var _ = Describe("#Build", func() {
 					})
 
 					It("returns an error", func() {
-						monitors, err := dashboard.Build(circleCIClient, &filter)
+						monitors, err := dashboard.Build(circleCIClient, &filter, animatedBuildError)
 						Ω(err).Should(MatchError("Error adding workflows"))
 						Ω(monitors).Should(BeNil())
 					})
@@ -295,7 +298,7 @@ var _ = Describe("#Build", func() {
 					})
 
 					It("returns dashboard monitors", func() {
-						monitors, err := dashboard.Build(circleCIClient, &filter)
+						monitors, err := dashboard.Build(circleCIClient, &filter, animatedBuildError)
 						Ω(err).Should(BeNil())
 						Ω(monitors).Should(Equal(dashboard.Monitors{{
 							Name:     "foobar/example",

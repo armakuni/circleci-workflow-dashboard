@@ -103,10 +103,6 @@ a {
   background: #3498DB;
 }
 
-.errored {
-  background: #E3B80D;
-}
-
 .failed {
   background: #F24646;
 }
@@ -121,6 +117,7 @@ a {
 
 /* Animated borders for activity */
 .running,
+.errored,
 .on_hold {
   animation-iteration-count: infinite;
   -webkit-animation-iteration-count: infinite;
@@ -147,6 +144,17 @@ a {
   -moz-box-shadow: 0 0 0 1vw #555555;
   box-shadow: 0 0 0 1vw #555555;
   -webkit-box-shadow: 0 0 0 1vw #555555;
+}
+
+.errored-static {
+  -moz-box-shadow: 0 0 0 1vw #E3B80D;
+  box-shadow: 0 0 0 1vw #E3B80D;
+  -webkit-box-shadow: 0 0 0 1vw #E3B80D;
+}
+
+.errored {
+  animation-name: pulse-errored;
+  -webkit-animation-name: pulse-errored;
 }
 
 @-webkit-keyframes pulse-on-hold {
@@ -208,5 +216,36 @@ a {
   100% {
     -moz-box-shadow: 0 0 0 0 rgba(52, 150, 220, 0);
     box-shadow: 0 0 0 0 rgba(52, 150, 220, 0);
+  }
+}
+
+@-webkit-keyframes pulse-errored {
+  0% {
+    -webkit-box-shadow: 0 0 0 0 #E3B80D;
+  }
+
+  70% {
+    -webkit-box-shadow: 0 0 0 2vw rgba(128, 103, 228, 0);
+  }
+
+  100% {
+    -webkit-box-shadow: 0 0 0 0 rgba(128, 103, 228, 0);
+  }
+}
+
+@keyframes pulse-errored {
+  0% {
+    -moz-box-shadow: 0 0 0 0 #E3B80D;
+    box-shadow: 0 0 0 0 #E3B80D;
+  }
+
+  70% {
+    -moz-box-shadow: 0 0 0 2vw rgba(128, 103, 228, 0);
+    box-shadow: 0 0 0 2vw rgba(128, 103, 228, 0);
+  }
+
+  100% {
+    -moz-box-shadow: 0 0 0 0 rgba(128, 103, 228, 0);
+    box-shadow: 0 0 0 0 rgba(79, 75, 99, 0);
   }
 }

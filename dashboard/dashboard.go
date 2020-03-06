@@ -27,7 +27,7 @@ func NewMonitor(project circleci.Project, pipeline circleci.Pipeline, workflow c
 	}
 }
 
-func Build(circleCIClient circleci.CircleCI, filter *circleci.Filter) (Monitors, error) {
+func Build(circleCIClient circleci.CircleCI, filter *circleci.Filter, animatedBuildErrors bool) (Monitors, error) {
 	var dashboardData Monitors
 	projects, err := circleCIClient.GetAllProjects()
 	if err != nil {
@@ -45,7 +45,11 @@ func Build(circleCIClient circleci.CircleCI, filter *circleci.Filter) (Monitors,
 			if err != nil {
 				return nil, err
 			}
-			dashboardData, err = dashboardData.AddWorkflows(circleCIClient, project, pipeline, workflows, filteredPipelines[branch])
+			workflows, pipeline, filteredPipes, buildError, err := GetLatestWorkflowWithoutBuildError(circleCIClient, workflows, filteredPipelines[branch])
+			if err != nil {
+				return nil, err
+			}
+			dashboardData, err = dashboardData.AddWorkflows(circleCIClient, project, pipeline, workflows, filteredPipes, buildError, animatedBuildErrors)
 			if err != nil {
 				return nil, err
 			}
@@ -76,21 +80,22 @@ func (d *Monitors) AlreadyExists(monitor Monitor) bool {
 	return false
 }
 
-func (d Monitors) AddWorkflows(circleCIClient circleci.CircleCI, project circleci.Project, pipeline circleci.Pipeline, workflows circleci.Workflows, filteredPipelines circleci.Pipelines) (Monitors, error) {
+func (d Monitors) AddWorkflows(circleCIClient circleci.CircleCI, project circleci.Project, pipeline circleci.Pipeline, workflows circleci.Workflows, filteredPipelines circleci.Pipelines, buildError, animatedBuildErrors bool) (Monitors, error) {
 	for _, workflow := range workflows {
 		monitor := NewMonitor(project, pipeline, workflow, "", "")
 		if d.AlreadyExists(monitor) {
 			continue
 		}
-		var status string
-		if workflow.Name == "Build Error" {
-			status = "errored"
-		} else {
-			var err error
-			status, err = circleCIClient.WorkflowStatus(filteredPipelines, workflow)
-			if err != nil {
-				return nil, err
+		status, err := circleCIClient.WorkflowStatus(filteredPipelines, workflow)
+		if err != nil {
+			return nil, err
+		}
+		if buildError {
+			errorStatus := "errored"
+			if !animatedBuildErrors {
+				errorStatus = "errored-static"
 			}
+			status = fmt.Sprintf("%s %s", status, errorStatus)
 		}
 		link := circleCIClient.WorkflowLink(project, pipeline, workflow)
 		monitor.Status = status
@@ -98,4 +103,30 @@ func (d Monitors) AddWorkflows(circleCIClient circleci.CircleCI, project circlec
 		d = append(d, monitor)
 	}
 	return d, nil
+}
+
+func GetLatestWorkflowWithoutBuildError(circleCIClient circleci.CircleCI, workflows circleci.Workflows, filteredPipelines circleci.Pipelines) (circleci.Workflows, circleci.Pipeline, circleci.Pipelines, bool, error) {
+	var buildError bool
+	if workflows.BuildError() {
+		var previousNonError bool
+		buildError = true
+		for index, pipeline := range filteredPipelines {
+			workflows, err := circleCIClient.GetWorkflowsForPipeline(pipeline)
+			if err != nil {
+				return nil, circleci.Pipeline{}, nil, buildError, err
+			}
+			if !workflows.BuildError() {
+				previousNonError = true
+				return workflows, pipeline, filteredPipelines[index:], buildError, nil
+			}
+		}
+		if !previousNonError {
+			workflow := workflows[0]
+			workflow.Status = "unknown"
+			workflows = circleci.Workflows{workflow}
+			pipeline := filteredPipelines[len(filteredPipelines)-1]
+			return workflows, pipeline, circleci.Pipelines{pipeline}, buildError, nil
+		}
+	}
+	return workflows, filteredPipelines[0], filteredPipelines, buildError, nil
 }

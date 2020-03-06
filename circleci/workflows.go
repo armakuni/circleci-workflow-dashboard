@@ -7,3 +7,16 @@ type Workflow struct {
 }
 
 type Workflows []Workflow
+
+func (w *Workflow) BuildError() bool {
+	return w.Name == "Build Error"
+}
+
+func (w *Workflows) BuildError() bool {
+	for _, workflow := range *w {
+		if workflow.BuildError() {
+			return true
+		}
+	}
+	return false
+}
