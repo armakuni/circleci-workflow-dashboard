@@ -178,16 +178,48 @@ var _ = Describe("Monitors", func() {
 				circleCIClient.On("WorkflowLink", mock.Anything, mock.Anything, mock.Anything).Return("https://foobar.com")
 			})
 
-			It("adds a monitor per new workflow", func() {
-				monitors, err := monitors.AddWorkflows(circleCIClient, project, pipeline, workflows, filteredPipelines, buildError, animatedBuildError)
-				Ω(err).Should(BeNil())
-				Ω(monitors).Should(Equal(dashboard.Monitors{{
-					Name:     "foobar/example",
-					Workflow: "test-workflow",
-					Branch:   "master",
-					Status:   "success",
-					Link:     "https://foobar.com",
-				}}))
+			Context("and there was a build error", func() {
+				Context("and animated build is true", func() {
+					It("adds a monitor per new workflow", func() {
+						monitors, err := monitors.AddWorkflows(circleCIClient, project, pipeline, workflows, filteredPipelines, true, animatedBuildError)
+						Ω(err).Should(BeNil())
+						Ω(monitors).Should(Equal(dashboard.Monitors{{
+							Name:     "foobar/example",
+							Workflow: "test-workflow",
+							Branch:   "master",
+							Status:   "success errored",
+							Link:     "https://foobar.com",
+						}}))
+					})
+				})
+
+				Context("and animated build is false", func() {
+					It("adds a monitor per new workflow", func() {
+						monitors, err := monitors.AddWorkflows(circleCIClient, project, pipeline, workflows, filteredPipelines, true, false)
+						Ω(err).Should(BeNil())
+						Ω(monitors).Should(Equal(dashboard.Monitors{{
+							Name:     "foobar/example",
+							Workflow: "test-workflow",
+							Branch:   "master",
+							Status:   "success errored-static",
+							Link:     "https://foobar.com",
+						}}))
+					})
+				})
+			})
+
+			Context("and there was not a build error", func() {
+				It("adds a monitor per new workflow", func() {
+					monitors, err := monitors.AddWorkflows(circleCIClient, project, pipeline, workflows, filteredPipelines, buildError, animatedBuildError)
+					Ω(err).Should(BeNil())
+					Ω(monitors).Should(Equal(dashboard.Monitors{{
+						Name:     "foobar/example",
+						Workflow: "test-workflow",
+						Branch:   "master",
+						Status:   "success",
+						Link:     "https://foobar.com",
+					}}))
+				})
 			})
 		})
 	})
@@ -209,17 +241,23 @@ var _ = Describe("#Build", func() {
 			ID:  "1",
 			VCS: circleci.VCS{Branch: "master"},
 		}
+		pipeline2 = circleci.Pipeline{
+			ID:  "2",
+			VCS: circleci.VCS{Branch: "master"},
+		}
 		workflows = circleci.Workflows{
 			{
 				ID:   "1",
-				Name: "test-workflow",
+				Name: "Build Error",
 			},
+		}
+		workflows2 = circleci.Workflows{
 			{
-				ID:   "1",
+				ID:   "2",
 				Name: "test-workflow",
 			},
 		}
-		filteredPipelines  = circleci.Pipelines{pipeline}
+		filteredPipelines  = circleci.Pipelines{pipeline, pipeline2}
 		filter             = circleci.Filter{}
 		animatedBuildError = true
 	)
@@ -275,39 +313,145 @@ var _ = Describe("#Build", func() {
 			})
 
 			Context("and getting workflows is successful", func() {
-				BeforeEach(func() {
-					circleCIClient.On("GetWorkflowsForPipeline", pipeline).Return(workflows, nil)
-				})
-
-				Context("and adding workflows errors", func() {
+				Context("and getting previous workflows without build errors is successful", func() {
 					BeforeEach(func() {
-						circleCIClient.On("WorkflowStatus", mock.Anything, mock.Anything).Return("", fmt.Errorf("Error adding workflows"))
+						circleCIClient.On("GetWorkflowsForPipeline", pipeline).Return(workflows, nil)
+						circleCIClient.On("GetWorkflowsForPipeline", pipeline2).Return(nil, fmt.Errorf("Error getting previous workflows"))
 					})
 
 					It("returns an error", func() {
 						monitors, err := dashboard.Build(circleCIClient, &filter, animatedBuildError)
-						Ω(err).Should(MatchError("Error adding workflows"))
+						Ω(err).Should(MatchError("Error getting previous workflows"))
 						Ω(monitors).Should(BeNil())
 					})
 				})
 
-				Context("and adding workflows is successful", func() {
+				Context("and getting previous workflows without build error is successful", func() {
 					BeforeEach(func() {
-						circleCIClient.On("WorkflowStatus", mock.Anything, mock.Anything).Return("success", nil)
-						circleCIClient.On("WorkflowLink", mock.Anything, mock.Anything, mock.Anything).Return("https://foobar.com")
+						circleCIClient.On("GetWorkflowsForPipeline", pipeline).Return(workflows, nil)
+						circleCIClient.On("GetWorkflowsForPipeline", pipeline2).Return(workflows2, nil)
 					})
 
-					It("returns dashboard monitors", func() {
-						monitors, err := dashboard.Build(circleCIClient, &filter, animatedBuildError)
-						Ω(err).Should(BeNil())
-						Ω(monitors).Should(Equal(dashboard.Monitors{{
-							Name:     "foobar/example",
-							Workflow: "test-workflow",
-							Branch:   "master",
-							Status:   "success",
-							Link:     "https://foobar.com",
-						}}))
+					Context("and adding workflows errors", func() {
+						BeforeEach(func() {
+							circleCIClient.On("WorkflowStatus", mock.Anything, mock.Anything).Return("", fmt.Errorf("Error adding workflows"))
+						})
+
+						It("returns an error", func() {
+							monitors, err := dashboard.Build(circleCIClient, &filter, animatedBuildError)
+							Ω(err).Should(MatchError("Error adding workflows"))
+							Ω(monitors).Should(BeNil())
+						})
 					})
+
+					Context("and adding workflows is successful", func() {
+						BeforeEach(func() {
+							circleCIClient.On("WorkflowStatus", mock.Anything, mock.Anything).Return("success", nil)
+							circleCIClient.On("WorkflowLink", mock.Anything, mock.Anything, mock.Anything).Return("https://foobar.com")
+						})
+
+						It("returns dashboard monitors", func() {
+							monitors, err := dashboard.Build(circleCIClient, &filter, animatedBuildError)
+							Ω(err).Should(BeNil())
+							Ω(monitors).Should(Equal(dashboard.Monitors{{
+								Name:     "foobar/example",
+								Workflow: "test-workflow",
+								Branch:   "master",
+								Status:   "success errored",
+								Link:     "https://foobar.com",
+							}}))
+						})
+					})
+				})
+			})
+		})
+	})
+})
+
+var _ = Describe("#GetLatestWorkflowWithoutBuildError", func() {
+	var (
+		circleCIClient = &mocks.CircleCI{}
+		pipeline       = circleci.Pipeline{
+			ID:  "1",
+			VCS: circleci.VCS{Branch: "master"},
+		}
+		pipeline2 = circleci.Pipeline{
+			ID:  "2",
+			VCS: circleci.VCS{Branch: "master"},
+		}
+		workflows = circleci.Workflows{
+			{
+				ID:   "1",
+				Name: "Build Error",
+			},
+		}
+		workflows2 = circleci.Workflows{
+			{
+				ID:   "2",
+				Name: "test-workflow",
+			},
+		}
+		filteredPipelines = circleci.Pipelines{pipeline, pipeline2}
+	)
+
+	AfterEach(func() {
+		circleCIClient = &mocks.CircleCI{}
+	})
+
+	Context("when the workflows do not contain a build error", func() {
+		It("returns the workflows and pipelines as they are", func() {
+			expectedWorkflow, expectedPipeline, exectedPipelines, buildError, err := dashboard.GetLatestWorkflowWithoutBuildError(circleCIClient, workflows2, filteredPipelines)
+			Ω(expectedWorkflow).Should(Equal(workflows2))
+			Ω(expectedPipeline).Should(Equal(pipeline))
+			Ω(exectedPipelines).Should(Equal(filteredPipelines))
+			Ω(buildError).Should(BeFalse())
+			Ω(err).Should(BeNil())
+		})
+	})
+
+	Context("when the workflows contain a build error", func() {
+		Context("when getting workflows errors", func() {
+			BeforeEach(func() {
+				circleCIClient.On("GetWorkflowsForPipeline", pipeline).Return(nil, fmt.Errorf("Getting workflows errored"))
+				circleCIClient.On("GetWorkflowsForPipeline", pipeline2).Return(workflows2, nil)
+			})
+
+			It("returns an error", func() {
+				_, _, _, _, err := dashboard.GetLatestWorkflowWithoutBuildError(circleCIClient, workflows, filteredPipelines)
+				Ω(err).Should(MatchError("Getting workflows errored"))
+			})
+		})
+
+		Context("when getting workflows is successful", func() {
+			Context("when there is a previous working workflow", func() {
+				BeforeEach(func() {
+					circleCIClient.On("GetWorkflowsForPipeline", pipeline).Return(workflows, nil)
+					circleCIClient.On("GetWorkflowsForPipeline", pipeline2).Return(workflows2, nil)
+				})
+
+				It("returns the last good workflow and pipelines", func() {
+					expectedWorkflow, expectedPipeline, exectedPipelines, buildError, err := dashboard.GetLatestWorkflowWithoutBuildError(circleCIClient, workflows, filteredPipelines)
+					Ω(expectedWorkflow).Should(Equal(workflows2))
+					Ω(expectedPipeline).Should(Equal(pipeline2))
+					Ω(exectedPipelines).Should(Equal(circleci.Pipelines{pipeline2}))
+					Ω(buildError).Should(BeTrue())
+					Ω(err).Should(BeNil())
+				})
+			})
+
+			Context("when the workflows have only ever been build errors", func() {
+				BeforeEach(func() {
+					circleCIClient.On("GetWorkflowsForPipeline", pipeline).Return(workflows, nil)
+					circleCIClient.On("GetWorkflowsForPipeline", pipeline2).Return(workflows, nil)
+				})
+
+				It("returns the earliest existance of the build error with an unknown status", func() {
+					expectedWorkflow, expectedPipeline, exectedPipelines, buildError, err := dashboard.GetLatestWorkflowWithoutBuildError(circleCIClient, workflows, filteredPipelines)
+					Ω(expectedWorkflow).Should(Equal(circleci.Workflows{{ID: "1", Name: "Build Error", Status: "unknown"}}))
+					Ω(expectedPipeline).Should(Equal(pipeline2))
+					Ω(exectedPipelines).Should(Equal(circleci.Pipelines{pipeline2}))
+					Ω(buildError).Should(BeTrue())
+					Ω(err).Should(BeNil())
 				})
 			})
 		})
