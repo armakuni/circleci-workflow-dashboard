@@ -24,7 +24,6 @@ const (
 var completedStauses = map[string]interface{}{
 	statusSuccess: nil,
 	statusFailed:  nil,
-	statusFailing: nil,
 	statusError:   nil,
 	statusUnknown: nil,
 }
@@ -230,9 +229,6 @@ func (c *Client) JobLink(project Project, job Job) string {
 }
 
 func (c *Client) WorkflowStatus(pipelines Pipelines, workflow Workflow) (string, error) {
-	if workflow.Status == statusFailing {
-		workflow.Status = statusFailed
-	}
 	status := workflow.Status
 	if _, ok := completedStauses[workflow.Status]; !ok {
 		previous_status, err := c.PreviousCompleteWorkflowState(pipelines, workflow.Name)

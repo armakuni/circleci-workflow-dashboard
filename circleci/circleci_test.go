@@ -545,7 +545,7 @@ var _ = Describe("Client", func() {
 			}
 			completedWorkflow = circleci.Workflow{
 				ID:     "1",
-				Status: "failing",
+				Status: "failed",
 				Name:   "foobar",
 			}
 		)

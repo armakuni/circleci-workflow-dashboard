@@ -118,7 +118,8 @@ a {
 /* Animated borders for activity */
 .running,
 .errored,
-.on_hold {
+.on_hold,
+.failing {
   animation-iteration-count: infinite;
   -webkit-animation-iteration-count: infinite;
   animation-timing-function: ease;
@@ -155,6 +156,11 @@ a {
 .errored {
   animation-name: pulse-errored;
   -webkit-animation-name: pulse-errored;
+}
+
+.failing {
+  animation-name: pulse-failing;
+  -webkit-animation-name: pulse-failing;
 }
 
 @-webkit-keyframes pulse-on-hold {
@@ -237,6 +243,37 @@ a {
   0% {
     -moz-box-shadow: 0 0 0 0 #E3B80D;
     box-shadow: 0 0 0 0 #E3B80D;
+  }
+
+  70% {
+    -moz-box-shadow: 0 0 0 2vw rgba(128, 103, 228, 0);
+    box-shadow: 0 0 0 2vw rgba(128, 103, 228, 0);
+  }
+
+  100% {
+    -moz-box-shadow: 0 0 0 0 rgba(128, 103, 228, 0);
+    box-shadow: 0 0 0 0 rgba(79, 75, 99, 0);
+  }
+}
+
+@-webkit-keyframes pulse-failing {
+  0% {
+    -webkit-box-shadow: 0 0 0 0 #F24646;
+  }
+
+  70% {
+    -webkit-box-shadow: 0 0 0 2vw rgba(128, 103, 228, 0);
+  }
+
+  100% {
+    -webkit-box-shadow: 0 0 0 0 rgba(128, 103, 228, 0);
+  }
+}
+
+@keyframes pulse-failing {
+  0% {
+    -moz-box-shadow: 0 0 0 0 #F24646;
+    box-shadow: 0 0 0 0 #F24646;
   }
 
   70% {
