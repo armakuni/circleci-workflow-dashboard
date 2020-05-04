@@ -135,6 +135,25 @@ func (c *Client) GetAllProjects() (Projects, error) {
 	return projects, err
 }
 
+func (c *Client) GetProjectEnvVars(projectSlug string) (ProjectEnvVars, error) {
+	var envVars ProjectEnvVars
+	items, err := c.pagedCallAPIV2(fmt.Sprintf("project/%s/envvar", projectSlug))
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range items {
+		if len(item) == 0 {
+			continue
+		}
+		var pagedEnvVars ProjectEnvVars
+		if err := json.Unmarshal(item, &pagedEnvVars); err != nil {
+			return nil, err
+		}
+		envVars = append(envVars, pagedEnvVars...)
+	}
+	return envVars, nil
+}
+
 func (c *Client) GetAllPipelines(project Project) (Pipelines, error) {
 	var pipelines Pipelines
 	for branch, _ := range project.Branches {

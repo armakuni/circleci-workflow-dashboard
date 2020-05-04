@@ -11,6 +11,13 @@ type Project struct {
 
 type Projects []Project
 
+type ProjectEnvVar struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type ProjectEnvVars []ProjectEnvVar
+
 func (p *Project) Slug() string {
 	return fmt.Sprintf("%s/%s/%s", p.VCSType, p.Username, p.Reponame)
 }

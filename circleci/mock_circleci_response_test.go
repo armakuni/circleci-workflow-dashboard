@@ -204,3 +204,26 @@ const workflow_resp_previous_state_3 = `{
 		}
 	]
 }`
+
+const projecteEnvVarResp = `{
+  "next_page_token" : null,
+  "items" : [ {
+    "name" : "ARTIFACTORY_PASSWORD",
+    "value" : "xxxxxxxx"
+  }, {
+    "name" : "ARTIFACTORY_USER",
+    "value" : "xxxxxxxx"
+  }, {
+    "name" : "CACHE_VERSION",
+    "value" : "xxxxxxxx"
+  }, {
+    "name" : "PROJECT_NAME",
+    "value" : "xxxxxxxx"
+  }, {
+    "name" : "STUNNEL_HOST",
+    "value" : "xxxxxxxx"
+  }, {
+    "name" : "STUNNEL_PSK",
+    "value" : "xxxxxxxx"
+  } ]
+}`
