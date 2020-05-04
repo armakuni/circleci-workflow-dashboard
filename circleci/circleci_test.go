@@ -153,6 +153,39 @@ var _ = Describe("Client", func() {
 		})
 	})
 
+	Describe("#CreateProjectEnvVar", func() {
+		var projectSlug = "github/foobar/example"
+
+		BeforeEach(func() {
+			mocks := []MockRoute{
+				{"POST", "/api/v2/project/github/foobar/example/envvar", createEnvVarResp, 200, "", nil},
+			}
+			setupMultiple(mocks)
+		})
+
+		It("creates the env var in a project", func() {
+			envVar, err := client.CreateProjectEnvVar(projectSlug, "foo", "bar")
+			Ω(err).Should(BeNil())
+			Ω(envVar).Should(Equal(circleci.ProjectEnvVar{Name: "foo", Value: "xxxxxxx"}))
+		})
+	})
+
+	Describe("#CreateProjectEnvVar", func() {
+		var projectSlug = "github/foobar/example"
+
+		BeforeEach(func() {
+			mocks := []MockRoute{
+				{"DELETE", "/api/v2/project/github/foobar/example/envvar/foo", "", 200, "", nil},
+			}
+			setupMultiple(mocks)
+		})
+
+		It("deletes the env var in a project", func() {
+			err := client.DeleteProjectEnvVar(projectSlug, "foo")
+			Ω(err).Should(BeNil())
+		})
+	})
+
 	Describe("#GetAllPipelines", func() {
 		var project = circleci.Project{
 			VCSType:  "github",

@@ -227,3 +227,5 @@ const projecteEnvVarResp = `{
     "value" : "xxxxxxxx"
   } ]
 }`
+
+const createEnvVarResp = `{"name":"foo", "value": "xxxxxxx"}`

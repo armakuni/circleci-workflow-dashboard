@@ -33,6 +33,10 @@ type PagedResponse struct {
 	NextPageToken *string         `json:"next_page_token"`
 }
 
+type MessageResponse struct {
+	Message string `json:"message"`
+}
+
 type CircleCI interface {
 	GetAllProjects() (Projects, error)
 	GetAllPipelines(Project) (Pipelines, error)
@@ -83,6 +87,21 @@ func (c *Client) get(urlPath string) (*resty.Response, error) {
 		SetHeader("Content-Type", "application/json").
 		SetHeader("Accept", "application/json").
 		Get(fmt.Sprintf("%s/%s", c.Config.APIURL, urlPath))
+}
+
+func (c *Client) post(urlPath string, body interface{}) (*resty.Response, error) {
+	return c.Client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept", "application/json").
+		SetBody(body).
+		Post(fmt.Sprintf("%s/%s", c.Config.APIURL, urlPath))
+}
+
+func (c *Client) delete(urlPath string) (*resty.Response, error) {
+	return c.Client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept", "application/json").
+		Delete(fmt.Sprintf("%s/%s", c.Config.APIURL, urlPath))
 }
 
 func (c *Client) callAPIV1(apiTarget string) (*resty.Response, error) {
@@ -152,6 +171,25 @@ func (c *Client) GetProjectEnvVars(projectSlug string) (ProjectEnvVars, error) {
 		envVars = append(envVars, pagedEnvVars...)
 	}
 	return envVars, nil
+}
+
+func (c *Client) CreateProjectEnvVar(projectSlug, key, value string) (ProjectEnvVar, error) {
+	envVar := ProjectEnvVar{
+		Name:  key,
+		Value: value,
+	}
+	resp, err := c.post(fmt.Sprintf("api/v2/project/%s/envvar", projectSlug), envVar)
+	if err != nil {
+		return ProjectEnvVar{}, err
+	}
+	var respEnvVar ProjectEnvVar
+	err = json.Unmarshal(resp.Body(), &respEnvVar)
+	return respEnvVar, err
+}
+
+func (c *Client) DeleteProjectEnvVar(projectSlug, key string) error {
+	_, err := c.delete(fmt.Sprintf("api/v2/project/%s/envvar/%s", projectSlug, key))
+	return err
 }
 
 func (c *Client) GetAllPipelines(project Project) (Pipelines, error) {
