@@ -170,7 +170,7 @@ var _ = Describe("Client", func() {
 		})
 	})
 
-	Describe("#CreateProjectEnvVar", func() {
+	Describe("#DeleteProjectEnvVar", func() {
 		var projectSlug = "github/foobar/example"
 
 		BeforeEach(func() {
