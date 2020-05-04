@@ -10,6 +10,41 @@ type CircleCI struct {
 	mock.Mock
 }
 
+// CreateProjectEnvVar provides a mock function with given fields: _a0, _a1, _a2
+func (_m *CircleCI) CreateProjectEnvVar(_a0 string, _a1 string, _a2 string) (circleci.ProjectEnvVar, error) {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	var r0 circleci.ProjectEnvVar
+	if rf, ok := ret.Get(0).(func(string, string, string) circleci.ProjectEnvVar); ok {
+		r0 = rf(_a0, _a1, _a2)
+	} else {
+		r0 = ret.Get(0).(circleci.ProjectEnvVar)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
+		r1 = rf(_a0, _a1, _a2)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DeleteProjectEnvVar provides a mock function with given fields: _a0, _a1
+func (_m *CircleCI) DeleteProjectEnvVar(_a0 string, _a1 string) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // GetAllPipelines provides a mock function with given fields: _a0
 func (_m *CircleCI) GetAllPipelines(_a0 circleci.Project) (circleci.Pipelines, error) {
 	ret := _m.Called(_a0)
@@ -71,6 +106,29 @@ func (_m *CircleCI) GetJobsForWorkflow(_a0 circleci.Workflow) (circleci.Jobs, er
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(circleci.Workflow) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetProjectEnvVars provides a mock function with given fields: _a0
+func (_m *CircleCI) GetProjectEnvVars(_a0 string) (circleci.ProjectEnvVars, error) {
+	ret := _m.Called(_a0)
+
+	var r0 circleci.ProjectEnvVars
+	if rf, ok := ret.Get(0).(func(string) circleci.ProjectEnvVars); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(circleci.ProjectEnvVars)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)

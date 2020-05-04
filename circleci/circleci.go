@@ -39,6 +39,9 @@ type MessageResponse struct {
 
 type CircleCI interface {
 	GetAllProjects() (Projects, error)
+	GetProjectEnvVars(string) (ProjectEnvVars, error)
+	CreateProjectEnvVar(string, string, string) (ProjectEnvVar, error)
+	DeleteProjectEnvVar(string, string) error
 	GetAllPipelines(Project) (Pipelines, error)
 	GetWorkflowsForPipeline(Pipeline) (Workflows, error)
 	GetJobsForWorkflow(Workflow) (Jobs, error)
