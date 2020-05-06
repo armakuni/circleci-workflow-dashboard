@@ -123,33 +123,50 @@ var _ = Describe("Client", func() {
 	Describe("#GetProjectEnvVars", func() {
 		var projectSlug = "github/foobar/example"
 
-		BeforeEach(func() {
-			mocks := []MockRoute{
-				{"GET", "/api/v2/project/github/foobar/example/envvar", projecteEnvVarResp, 200, "", nil},
-			}
-			setupMultiple(mocks)
+		Context("When the project doesn't exist", func() {
+			BeforeEach(func() {
+				mocks := []MockRoute{
+					{"GET", "/api/v2/project/github/foobar/example/envvar", `{"message": "Project not found"}`, 404, "", nil},
+				}
+				setupMultiple(mocks)
+			})
+
+			It("raises an error", func() {
+				envVars, err := client.GetProjectEnvVars(projectSlug)
+				Ω(err).Should(MatchError("Could not get project, do you have the correct projectSlug and API permissions?"))
+				Ω(envVars).Should(BeNil())
+			})
 		})
 
-		It("returns the env vars of a project", func() {
-			envVars, err := client.GetProjectEnvVars(projectSlug)
-			Ω(err).Should(BeNil())
-			Ω(envVars).Should(Equal(circleci.ProjectEnvVars{
-				{
-					Name:  "ARTIFACTORY_PASSWORD",
-					Value: "xxxxxxxx",
-				},
-				{
-					Name:  "ARTIFACTORY_USER",
-					Value: "xxxxxxxx",
-				},
-				{
-					Name:  "CACHE_VERSION",
-					Value: "xxxxxxxx",
-				},
-				{Name: "PROJECT_NAME", Value: "xxxxxxxx"},
-				{Name: "STUNNEL_HOST", Value: "xxxxxxxx"},
-				{Name: "STUNNEL_PSK", Value: "xxxxxxxx"},
-			}))
+		Context("when the project exists", func() {
+			BeforeEach(func() {
+				mocks := []MockRoute{
+					{"GET", "/api/v2/project/github/foobar/example/envvar", projecteEnvVarResp, 200, "", nil},
+				}
+				setupMultiple(mocks)
+			})
+
+			It("returns the env vars of a project", func() {
+				envVars, err := client.GetProjectEnvVars(projectSlug)
+				Ω(err).Should(BeNil())
+				Ω(envVars).Should(Equal(circleci.ProjectEnvVars{
+					{
+						Name:  "ARTIFACTORY_PASSWORD",
+						Value: "xxxxxxxx",
+					},
+					{
+						Name:  "ARTIFACTORY_USER",
+						Value: "xxxxxxxx",
+					},
+					{
+						Name:  "CACHE_VERSION",
+						Value: "xxxxxxxx",
+					},
+					{Name: "PROJECT_NAME", Value: "xxxxxxxx"},
+					{Name: "STUNNEL_HOST", Value: "xxxxxxxx"},
+					{Name: "STUNNEL_PSK", Value: "xxxxxxxx"},
+				}))
+			})
 		})
 	})
 

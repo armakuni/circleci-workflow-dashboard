@@ -21,6 +21,8 @@ const (
 	statusUnknown      = "unknown"
 )
 
+const statusRespError = "Status Code was not ok"
+
 var completedStauses = map[string]interface{}{
 	statusSuccess: nil,
 	statusFailed:  nil,
@@ -137,6 +139,9 @@ func (c *Client) pagedCallAPIV2(apiTarget string) ([]json.RawMessage, error) {
 		if err != nil {
 			return nil, err
 		}
+		if resp.StatusCode() > 299 {
+			return nil, fmt.Errorf(statusRespError)
+		}
 		var pagedResponse PagedResponse
 		if err := json.Unmarshal(resp.Body(), &pagedResponse); err != nil {
 			return nil, err
@@ -161,6 +166,9 @@ func (c *Client) GetProjectEnvVars(projectSlug string) (ProjectEnvVars, error) {
 	var envVars ProjectEnvVars
 	items, err := c.pagedCallAPIV2(fmt.Sprintf("project/%s/envvar", projectSlug))
 	if err != nil {
+		if err.Error() == statusRespError {
+			return nil, fmt.Errorf("Could not get project, do you have the correct projectSlug and API permissions?")
+		}
 		return nil, err
 	}
 	for _, item := range items {
