@@ -81,7 +81,7 @@ var _ = Describe("Client", func() {
 
 			It("returns an error", func() {
 				projects, err := client.GetAllProjects()
-				Ω(err).Should(MatchError(`Get //%2Fbroken%2Fapi%2Fv1.1%2Fprojects/broken/api/v1.1/projects: unsupported protocol scheme ""`))
+				Ω(err).Should(MatchError(`Get "//%2Fbroken%2Fapi%2Fv1.1%2Fprojects/broken/api/v1.1/projects": unsupported protocol scheme ""`))
 				Ω(projects).Should(BeEmpty())
 			})
 		})
@@ -227,7 +227,7 @@ var _ = Describe("Client", func() {
 
 			It("returns an error", func() {
 				pipelines, err := client.GetAllPipelines(project)
-				Ω(err).Should(MatchError(`Get //%2Fbroken%2Fapi%2Fv2%2Fproject%2Fgithub%2Ffoobar%2Fexample%2Fpipeline%3Fbranch=master/broken/api/v2/project/github/foobar/example/pipeline?branch=master: unsupported protocol scheme ""`))
+				Ω(err).Should(MatchError(`Get "//%2Fbroken%2Fapi%2Fv2%2Fproject%2Fgithub%2Ffoobar%2Fexample%2Fpipeline%3Fbranch=master/broken/api/v2/project/github/foobar/example/pipeline?branch=master": unsupported protocol scheme ""`))
 				Ω(pipelines).Should(BeEmpty())
 			})
 		})
@@ -323,7 +323,7 @@ var _ = Describe("Client", func() {
 
 			It("returns an error", func() {
 				workflows, err := client.GetWorkflowsForPipeline(pipeline)
-				Ω(err).Should(MatchError(`Get //%2Fbroken%2Fapi%2Fv2%2Fpipeline%2F1%2Fworkflow/broken/api/v2/pipeline/1/workflow: unsupported protocol scheme ""`))
+				Ω(err).Should(MatchError(`Get "//%2Fbroken%2Fapi%2Fv2%2Fpipeline%2F1%2Fworkflow/broken/api/v2/pipeline/1/workflow": unsupported protocol scheme ""`))
 				Ω(workflows).Should(BeEmpty())
 			})
 		})
@@ -418,7 +418,7 @@ var _ = Describe("Client", func() {
 
 			It("returns an error", func() {
 				jobs, err := client.GetJobsForWorkflow(workflow)
-				Ω(err).Should(MatchError(`Get //%2Fbroken%2Fapi%2Fv2%2Fworkflow%2F1%2Fjob/broken/api/v2/workflow/1/job: unsupported protocol scheme ""`))
+				Ω(err).Should(MatchError(`Get "//%2Fbroken%2Fapi%2Fv2%2Fworkflow%2F1%2Fjob/broken/api/v2/workflow/1/job": unsupported protocol scheme ""`))
 				Ω(jobs).Should(BeEmpty())
 			})
 		})
@@ -580,7 +580,8 @@ var _ = Describe("Client", func() {
 				Reponame: "example",
 			}
 			pipeline = circleci.Pipeline{
-				ID: "1",
+				ID:     "1",
+				Number: 36,
 				VCS: circleci.VCS{
 					Branch: "master",
 				},
@@ -592,7 +593,7 @@ var _ = Describe("Client", func() {
 
 		It("returns a formatted workflow link to circleci", func() {
 			workflowLink := client.WorkflowLink(project, pipeline, workflow)
-			Ω(workflowLink).Should(Equal("https://app.circleci.com/github/foobar/example/pipelines/1/workflows/2"))
+			Ω(workflowLink).Should(Equal("https://app.circleci.com/pipelines/github/foobar/example/36/workflows/2"))
 		})
 	})
 

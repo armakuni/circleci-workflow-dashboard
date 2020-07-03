@@ -5,8 +5,9 @@ type VCS struct {
 }
 
 type Pipeline struct {
-	ID  string `json:"id"`
-	VCS VCS    `json:"vcs"`
+	ID     string `json:"id"`
+	Number int    `json:"number"`
+	VCS    VCS    `json:"vcs"`
 }
 
 type Pipelines []Pipeline

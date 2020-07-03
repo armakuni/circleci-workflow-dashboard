@@ -289,7 +289,7 @@ func (c *Client) PreviousCompleteWorkflowState(pipelines Pipelines, workflowName
 }
 
 func (c *Client) WorkflowLink(project Project, pipeline Pipeline, workflow Workflow) string {
-	return fmt.Sprintf("%s/%s/pipelines/%s/workflows/%s", c.Config.JobsURL, project.Slug(), pipeline.ID, workflow.ID)
+	return fmt.Sprintf("%s/pipelines/%s/%d/workflows/%s", c.Config.JobsURL, project.Slug(), pipeline.Number, workflow.ID)
 }
 
 func (c *Client) JobLink(project Project, job Job) string {
