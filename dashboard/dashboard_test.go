@@ -27,18 +27,57 @@ var _ = Describe("#NewMonitor", func() {
 			ID:   "1",
 			Name: "test-workflow",
 		}
-		status = "success"
-		link   = "https://foobar.com"
+		status        = "success"
+		link          = "https://foobar.com"
+		monitorConfig = &dashboard.MonitorConfig{}
 	)
 
-	It("returns a properly formatted dashboard monitor", func() {
-		Ω(dashboard.NewMonitor(project, pipeline, workflow, status, link)).Should(Equal(dashboard.Monitor{
-			Name:     "foobar/example",
-			Workflow: "test-workflow",
-			Branch:   "master",
-			Status:   status,
-			Link:     link,
-		}))
+	AfterEach(func() {
+		monitorConfig = &dashboard.MonitorConfig{}
+	})
+
+	Context("if HideOrganization is configured", func() {
+		BeforeEach(func() {
+			monitorConfig.HideOrganization = true
+		})
+
+		It("returns a properly formatted dashboard monitor", func() {
+			Ω(dashboard.NewMonitor(project, pipeline, workflow, status, link, monitorConfig)).Should(Equal(dashboard.Monitor{
+				Name:     "example",
+				Workflow: "test-workflow",
+				Branch:   "master",
+				Status:   status,
+				Link:     link,
+			}))
+		})
+	})
+
+	Context("if HideBranch is configured", func() {
+		BeforeEach(func() {
+			monitorConfig.HideBranch = true
+		})
+
+		It("returns a properly formatted dashboard monitor", func() {
+			Ω(dashboard.NewMonitor(project, pipeline, workflow, status, link, monitorConfig)).Should(Equal(dashboard.Monitor{
+				Name:     "foobar/example",
+				Workflow: "test-workflow",
+				Branch:   "",
+				Status:   status,
+				Link:     link,
+			}))
+		})
+	})
+
+	Context("with default config", func() {
+		It("returns a properly formatted dashboard monitor", func() {
+			Ω(dashboard.NewMonitor(project, pipeline, workflow, status, link, monitorConfig)).Should(Equal(dashboard.Monitor{
+				Name:     "foobar/example",
+				Workflow: "test-workflow",
+				Branch:   "master",
+				Status:   status,
+				Link:     link,
+			}))
+		})
 	})
 })
 
@@ -129,6 +168,7 @@ var _ = Describe("Monitors", func() {
 
 	Describe("#AddWorkflows", func() {
 		var (
+			monitorConfig  = &dashboard.MonitorConfig{}
 			circleCIClient = &mocks.CircleCI{}
 			monitors       dashboard.Monitors
 			project        = circleci.Project{
@@ -182,7 +222,7 @@ var _ = Describe("Monitors", func() {
 			})
 
 			It("returns an error", func() {
-				monitors, err := monitors.AddWorkflows(workflowInfo, &featureFlags)
+				monitors, err := monitors.AddWorkflows(workflowInfo, &featureFlags, monitorConfig)
 				Ω(err).Should(MatchError("Error getting status"))
 				Ω(monitors).Should(HaveLen(0))
 			})
@@ -201,7 +241,7 @@ var _ = Describe("Monitors", func() {
 
 				Context("and animated build is true", func() {
 					It("adds a monitor per new workflow", func() {
-						monitors, err := monitors.AddWorkflows(workflowInfo, &featureFlags)
+						monitors, err := monitors.AddWorkflows(workflowInfo, &featureFlags, monitorConfig)
 						Ω(err).Should(BeNil())
 						Ω(monitors).Should(Equal(dashboard.Monitors{{
 							Name:     "foobar/example",
@@ -218,7 +258,7 @@ var _ = Describe("Monitors", func() {
 						featureFlags.AnimatedBuildErrors = false
 					})
 					It("adds a monitor per new workflow", func() {
-						monitors, err := monitors.AddWorkflows(workflowInfo, &featureFlags)
+						monitors, err := monitors.AddWorkflows(workflowInfo, &featureFlags, monitorConfig)
 						Ω(err).Should(BeNil())
 						Ω(monitors).Should(Equal(dashboard.Monitors{{
 							Name:     "foobar/example",
@@ -233,7 +273,7 @@ var _ = Describe("Monitors", func() {
 
 			Context("and there was not a build error", func() {
 				It("adds a monitor per new workflow", func() {
-					monitors, err := monitors.AddWorkflows(workflowInfo, &featureFlags)
+					monitors, err := monitors.AddWorkflows(workflowInfo, &featureFlags, monitorConfig)
 					Ω(err).Should(BeNil())
 					Ω(monitors).Should(Equal(dashboard.Monitors{{
 						Name:     "foobar/example",
@@ -250,6 +290,7 @@ var _ = Describe("Monitors", func() {
 
 var _ = Describe("#Build", func() {
 	var (
+		monitorConfig  = &dashboard.MonitorConfig{}
 		circleCIClient = &mocks.CircleCI{}
 		project        = circleci.Project{
 			VCSType:  "github",
@@ -297,7 +338,7 @@ var _ = Describe("#Build", func() {
 		})
 
 		It("returns an error", func() {
-			monitors, err := dashboard.Build(circleCIClient, &filter, &featureFlags)
+			monitors, err := dashboard.Build(circleCIClient, &filter, &featureFlags, monitorConfig)
 			Ω(err).Should(MatchError("Error getting projects"))
 			Ω(monitors).Should(BeNil())
 		})
@@ -314,7 +355,7 @@ var _ = Describe("#Build", func() {
 			})
 
 			It("returns an error", func() {
-				monitors, err := dashboard.Build(circleCIClient, &filter, &featureFlags)
+				monitors, err := dashboard.Build(circleCIClient, &filter, &featureFlags, monitorConfig)
 				Ω(err).Should(MatchError("Error getting pipelines"))
 				Ω(monitors).Should(BeNil())
 			})
@@ -331,7 +372,7 @@ var _ = Describe("#Build", func() {
 				})
 
 				It("returns an error", func() {
-					monitors, err := dashboard.Build(circleCIClient, &filter, &featureFlags)
+					monitors, err := dashboard.Build(circleCIClient, &filter, &featureFlags, monitorConfig)
 					Ω(err).Should(MatchError("Error getting workflows"))
 					Ω(monitors).Should(BeNil())
 				})
@@ -345,7 +386,7 @@ var _ = Describe("#Build", func() {
 					})
 
 					It("returns an error", func() {
-						monitors, err := dashboard.Build(circleCIClient, &filter, &featureFlags)
+						monitors, err := dashboard.Build(circleCIClient, &filter, &featureFlags, monitorConfig)
 						Ω(err).Should(MatchError("Error getting previous workflows"))
 						Ω(monitors).Should(BeNil())
 					})
@@ -363,7 +404,7 @@ var _ = Describe("#Build", func() {
 						})
 
 						It("returns an error", func() {
-							monitors, err := dashboard.Build(circleCIClient, &filter, &featureFlags)
+							monitors, err := dashboard.Build(circleCIClient, &filter, &featureFlags, monitorConfig)
 							Ω(err).Should(MatchError("Error adding workflows"))
 							Ω(monitors).Should(BeNil())
 						})
@@ -376,7 +417,7 @@ var _ = Describe("#Build", func() {
 						})
 
 						It("returns dashboard monitors", func() {
-							monitors, err := dashboard.Build(circleCIClient, &filter, &featureFlags)
+							monitors, err := dashboard.Build(circleCIClient, &filter, &featureFlags, monitorConfig)
 							Ω(err).Should(BeNil())
 							Ω(monitors).Should(Equal(dashboard.Monitors{{
 								Name:     "foobar/example",

@@ -31,11 +31,21 @@ var _ = Describe("Pipelines", func() {
 	}
 
 	Describe("#FilterPerBranch", func() {
-		It("returns pipelines in a map keyed by branch", func() {
-			filteredPipelines := pipelines.FilteredPerBranch()
-			Ω(filteredPipelines).Should(HaveLen(2))
-			Ω(filteredPipelines["master"]).Should(HaveLen(3))
-			Ω(filteredPipelines["develop"]).Should(HaveLen(2))
+		Context("when you set a branch filter", func() {
+			It("returns pipelines in a map keyed by branch", func() {
+				filteredPipelines := pipelines.FilteredPerBranch("master")
+				Ω(filteredPipelines).Should(HaveLen(1))
+				Ω(filteredPipelines["master"]).Should(HaveLen(3))
+			})
+		})
+
+		Context("when you don't set a branch filter", func() {
+			It("returns pipelines in a map keyed by branch", func() {
+				filteredPipelines := pipelines.FilteredPerBranch("")
+				Ω(filteredPipelines).Should(HaveLen(2))
+				Ω(filteredPipelines["master"]).Should(HaveLen(3))
+				Ω(filteredPipelines["develop"]).Should(HaveLen(2))
+			})
 		})
 	})
 

@@ -3,6 +3,7 @@ package dashboard
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/armakuni/circleci-workflow-dashboard/circleci"
 )
@@ -19,19 +20,36 @@ type Monitor struct {
 	Link     string
 }
 
+type MonitorConfig struct {
+	HideOrganization bool
+	HideBranch       bool
+	BranchFilter     string
+}
+
 type Monitors []Monitor
 
-func NewMonitor(project circleci.Project, pipeline circleci.Pipeline, workflow circleci.Workflow, status, link string) Monitor {
+func NewMonitor(project circleci.Project, pipeline circleci.Pipeline, workflow circleci.Workflow, status, link string, config *MonitorConfig) Monitor {
+	projectName := project.Name()
+	branchName := pipeline.VCS.Branch
+
+	if config.HideOrganization {
+		projectName = strings.Join(strings.Split(projectName, "/")[1:], "/")
+	}
+
+	if config.HideBranch {
+		branchName = ""
+	}
+
 	return Monitor{
-		Name:     project.Name(),
+		Name:     projectName,
 		Workflow: workflow.Name,
-		Branch:   pipeline.VCS.Branch,
+		Branch:   branchName,
 		Status:   status,
 		Link:     link,
 	}
 }
 
-func Build(circleCIClient circleci.CircleCI, filter *circleci.Filter, featureFlags *FeatureFlags) (Monitors, error) {
+func Build(circleCIClient circleci.CircleCI, filter *circleci.Filter, featureFlags *FeatureFlags, monitorConfig *MonitorConfig) (Monitors, error) {
 	var dashboardData Monitors
 	projects, err := circleCIClient.GetAllProjects()
 	if err != nil {
@@ -43,7 +61,7 @@ func Build(circleCIClient circleci.CircleCI, filter *circleci.Filter, featureFla
 		if err != nil {
 			return nil, err
 		}
-		filteredPipelines := pipelines.FilteredPerBranch()
+		filteredPipelines := pipelines.FilteredPerBranch(monitorConfig.BranchFilter)
 		for branch, pipeline := range pipelines.LatestPerBranch() {
 			workflows, err := circleCIClient.GetWorkflowsForPipeline(pipeline)
 			if err != nil {
@@ -59,7 +77,7 @@ func Build(circleCIClient circleci.CircleCI, filter *circleci.Filter, featureFla
 			if err != nil {
 				return nil, err
 			}
-			dashboardData, err = dashboardData.AddWorkflows(workflowInfo, featureFlags)
+			dashboardData, err = dashboardData.AddWorkflows(workflowInfo, featureFlags, monitorConfig)
 			if err != nil {
 				return nil, err
 			}
@@ -90,9 +108,9 @@ func (d *Monitors) AlreadyExists(monitor Monitor) bool {
 	return false
 }
 
-func (d Monitors) AddWorkflows(workflowInfo WorkflowDetails, featureFlags *FeatureFlags) (Monitors, error) {
+func (d Monitors) AddWorkflows(workflowInfo WorkflowDetails, featureFlags *FeatureFlags, monitorConfig *MonitorConfig) (Monitors, error) {
 	for _, workflow := range workflowInfo.Workflows {
-		monitor := NewMonitor(workflowInfo.Project, workflowInfo.Pipeline, workflow, "", "")
+		monitor := NewMonitor(workflowInfo.Project, workflowInfo.Pipeline, workflow, "", "", monitorConfig)
 		if d.AlreadyExists(monitor) {
 			continue
 		}

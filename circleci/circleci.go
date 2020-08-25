@@ -23,7 +23,7 @@ const (
 
 const statusRespError = "Status Code was not ok"
 
-var completedStauses = map[string]interface{}{
+var completedStatuses = map[string]interface{}{
 	statusSuccess: nil,
 	statusFailed:  nil,
 	statusError:   nil,
@@ -276,7 +276,7 @@ func (c *Client) PreviousCompleteWorkflowState(pipelines Pipelines, workflowName
 			}
 			if workflow.Name == workflowName {
 				workflowInPipeline = true
-				if _, ok := completedStauses[workflow.Status]; ok {
+				if _, ok := completedStatuses[workflow.Status]; ok {
 					return workflow.Status, nil
 				}
 			}
@@ -298,12 +298,12 @@ func (c *Client) JobLink(project Project, job Job) string {
 
 func (c *Client) WorkflowStatus(pipelines Pipelines, workflow Workflow) (string, error) {
 	status := workflow.Status
-	if _, ok := completedStauses[workflow.Status]; !ok {
-		previous_status, err := c.PreviousCompleteWorkflowState(pipelines, workflow.Name)
+	if _, ok := completedStatuses[workflow.Status]; !ok {
+		previousStatus, err := c.PreviousCompleteWorkflowState(pipelines, workflow.Name)
 		if err != nil {
 			return "", err
 		}
-		status = fmt.Sprintf("%s %s", status, previous_status)
+		status = fmt.Sprintf("%s %s", status, previousStatus)
 	}
 	return status, nil
 }

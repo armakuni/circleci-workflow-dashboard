@@ -19,9 +19,9 @@ type Dashboard struct {
 	DashboardMonitors dashboard.Monitors
 }
 
-func updateDashboard(circleCIClient *circleci.Client, filter *circleci.Filter, ticker *time.Ticker, c *cache.Cache, dashboardFeatureFlags *dashboard.FeatureFlags) {
+func updateDashboard(circleCIClient *circleci.Client, filter *circleci.Filter, ticker *time.Ticker, c *cache.Cache, dashboardFeatureFlags *dashboard.FeatureFlags, monitorConfig *dashboard.MonitorConfig) {
 	for ; true; <-ticker.C {
-		dashboardMonitors, err := dashboard.Build(circleCIClient, filter, dashboardFeatureFlags)
+		dashboardMonitors, err := dashboard.Build(circleCIClient, filter, dashboardFeatureFlags, monitorConfig)
 		c.Set("dashErr", err, cache.NoExpiration)
 		c.Set("dashboardMonitors", dashboardMonitors, cache.NoExpiration)
 		c.Set("now", time.Now().Format("2006-01-02 15:04:05 -0700"), cache.NoExpiration)
@@ -94,6 +94,18 @@ func getDashboardFeatureFlags() *dashboard.FeatureFlags {
 	return &dashboard.FeatureFlags{AnimatedBuildErrors: animateBuildError}
 }
 
+func getMonitorConfig() *dashboard.MonitorConfig {
+	var hideOrg, hideBranch bool
+	if os.Getenv("HIDE_ORGANIZATION") != "" {
+		hideOrg = true
+	}
+	if os.Getenv("HIDE_BRANCH") != "" {
+		hideBranch = true
+	}
+	branchFilter := os.Getenv("BRANCH_FILTER")
+	return &dashboard.MonitorConfig{HideOrganization: hideOrg, HideBranch: hideBranch, BranchFilter: branchFilter}
+}
+
 func main() {
 	refreshInterval := getRefershInterval()
 	dashboardFeatureFlags := getDashboardFeatureFlags()
@@ -109,7 +121,7 @@ func main() {
 	}
 	ticker, cacher := setup(refreshInterval)
 	defer ticker.Stop()
-	go updateDashboard(circleCIClient, filter, ticker, cacher, dashboardFeatureFlags)
+	go updateDashboard(circleCIClient, filter, ticker, cacher, dashboardFeatureFlags, getMonitorConfig())
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*.tmpl")
 	r.GET("/", func(c *gin.Context) {
